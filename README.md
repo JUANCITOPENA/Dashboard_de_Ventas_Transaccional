@@ -317,7 +317,7 @@ Crea un archivo llamado `index.html` en la raíz de la carpeta de tu proyecto. P
   <script src="script.js"></script>
 </body>
 </html>
-----
+   ```
 
 
 ```css
