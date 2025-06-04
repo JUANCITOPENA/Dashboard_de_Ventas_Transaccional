@@ -316,9 +316,6 @@ Crea el archivo `index.html`:
         <div class="chart-container"><h5><i class="fas fa-boxes"></i> Unidades Mensuales</h5><div id="monthlyUnitsChart"></div><div class="chart-summary" id="monthlyUnitsSummary">Cargando...</div></div>
       </div>
     </div>
-    <footer>© <span id="currentYear"></span> Dashboard Compacto</footer>
-  </div>
-
     <!-- Pie de Página -->
     <footer>© <span id="currentYear"></span> Dashboard Compacto</footer>
   </div>
