@@ -271,117 +271,53 @@ Crea el archivo `index.html`:
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
-  <div class="dashboard-wrapper">
-    <!-- Encabezado del Dashboard -->
+<div class="dashboard-wrapper">
     <div class="dashboard-header">
       <div style="display:flex; align-items:center; justify-content:center; gap:10px;">
         <h1 style="margin:0; display:flex; align-items:center; gap:0.5rem;">
           <i class="fas fa-chart-pie"></i> Dashboard de Ventas Transaccional
         </h1>
+        <img src="https://avatars.githubusercontent.com/u/38921558?v=4" alt="Avatar" width="50" height="50" style="border-radius:50%; object-fit:cover;" />
       </div>
       <p>Visualización optimizada de datos clave (desde transacciones).</p>
     </div>
 
-    <!-- Fila de KPIs (Indicadores Clave de Rendimiento) -->
     <div class="kpi-row">
       <div class="kpi-card">
-        <i class="fas fa-sack-dollar text-success"></i>
-        <div class="h5">Ingresos Totales</div>
-        <div class="h4" id="totalRevenue">€0</div>
+        <i class="fas fa-sack-dollar text-success"></i><div class="h5">Ingresos Totales</div><div class="h4" id="totalRevenue">€0</div>
       </div>
       <div class="kpi-card">
-        <i class="fab fa-android text-info"></i>
-        <div class="h5">Ingresos Android</div>
-        <div class="h4" id="androidRevenue">€0</div>
+        <i class="fab fa-android text-info"></i><div class="h5">Ingresos Android</div><div class="h4" id="androidRevenue">€0</div>
       </div>
       <div class="kpi-card">
-        <i class="fab fa-apple text-secondary"></i>
-        <div class="h5">Ingresos iOS</div>
-        <div class="h4" id="iosRevenue">€0</div>
+        <i class="fab fa-apple text-secondary"></i><div class="h5">Ingresos iOS</div><div class="h4" id="iosRevenue">€0</div>
       </div>
     </div>
 
-    <!-- Sección de Filtros -->
     <div class="filters-section">
-      <div class="filter-group">
-        <label for="filterMonthStart">Mes Inicio:</label>
-        <select id="filterMonthStart" class="form-select"></select>
-      </div>
-      <div class="filter-group">
-        <label for="filterMonthEnd">Mes Fin:</label>
-        <select id="filterMonthEnd" class="form-select"></select>
-      </div>
-      <div class="filter-group">
-        <label for="filterBrand">Marca:</label>
-        <select id="filterBrand" class="form-select">
-          <option value="">Todas</option>
-        </select>
-      </div>
-      <div class="filter-group">
-        <label for="filterProduct">Producto:</label>
-        <select id="filterProduct" class="form-select">
-          <option value="">Todos</option>
-        </select>
-      </div>
-      <div class="filter-group">
-        <label for="filterCountry">País:</label>
-        <select id="filterCountry" class="form-select">
-          <option value="">Todos</option>
-        </select>
-      </div>
-      <div class="filter-group">
-        <label for="filterChannel">Canal:</label>
-        <select id="filterChannel" class="form-select">
-          <option value="">Todos</option>
-        </select>
-      </div>
-      <div class="filter-group">
-        <button id="resetFilters" class="btn btn-secondary w-100" style="margin-top: 1.5rem;">
-          <i class="fas fa-undo"></i> Limpiar
-        </button>
-      </div>
+      <div class="filter-group"><label for="filterMonthStart">Mes Inicio:</label><select id="filterMonthStart" class="form-select"></select></div>
+      <div class="filter-group"><label for="filterMonthEnd">Mes Fin:</label><select id="filterMonthEnd" class="form-select"></select></div>
+      <div class="filter-group"><label for="filterBrand">Marca:</label><select id="filterBrand" class="form-select"><option value="">Todas</option></select></div>
+      <div class="filter-group"><label for="filterProduct">Producto:</label><select id="filterProduct" class="form-select"><option value="">Todos</option></select></div>
+      <div class="filter-group"><label for="filterCountry">País:</label><select id="filterCountry" class="form-select"><option value="">Todos</option></select></div>
+      <div class="filter-group"><label for="filterChannel">Canal:</label><select id="filterChannel" class="form-select"><option value="">Todos</option></select></div>
+      <div class="filter-group"><button id="resetFilters" class="btn btn-secondary w-100" style="margin-top: 1.5rem;"><i class="fas fa-undo"></i> Limpiar</button></div>
     </div>
 
-    <!-- Cuadrícula de Gráficos -->
     <div class="charts-grid">
-      <!-- Primera Fila de Gráficos -->
       <div class="chart-row">
-        <div class="chart-container">
-          <h5><i class="fas fa-chart-line"></i> Ingresos Mensuales</h5>
-          <div id="monthlyRevenueChart"></div>
-          <div class="chart-summary" id="monthlyRevenueSummary">Cargando...</div>
-        </div>
-        <div class="chart-container">
-          <h5><i class="fas fa-store"></i> Ingresos por Canal</h5>
-          <div id="revenueByChannelChart"></div>
-          <div class="chart-summary" id="revenueByChannelSummary">Cargando...</div>
-        </div>
-        <div class="chart-container">
-          <h5><i class="fas fa-globe-americas"></i> Ingresos por País</h5>
-          <div id="revenueByCountryChart"></div>
-          <div class="chart-summary" id="revenueByCountrySummary">Cargando...</div>
-        </div>
+        <div class="chart-container"><h5><i class="fas fa-chart-line"></i> Ingresos Mensuales</h5><div id="monthlyRevenueChart"></div><div class="chart-summary" id="monthlyRevenueSummary">Cargando...</div></div>
+        <div class="chart-container"><h5><i class="fas fa-store"></i> Ingresos por Canal</h5><div id="revenueByChannelChart"></div><div class="chart-summary" id="revenueByChannelSummary">Cargando...</div></div>
+        <div class="chart-container"><h5><i class="fas fa-globe-americas"></i> Ingresos por País</h5><div id="revenueByCountryChart"></div><div class="chart-summary" id="revenueByCountrySummary">Cargando...</div></div>
       </div>
-      
-      <!-- Segunda Fila de Gráficos -->
       <div class="chart-row">
-        <div class="chart-container">
-          <h5><i class="fas fa-tag"></i> Ingresos por Marca</h5>
-          <div id="salesByBrandRevenueChart"></div>
-          <div class="chart-summary" id="salesByBrandRevenueSummary">Cargando...</div>
-        </div>
-        <div class="chart-container">
-          <h5><i class="fas fa-medal"></i> Top 5 Productos</h5>
-          <div id="topProductsChart"></div>
-          <div class="chart-summary" id="topProductsSummary">Cargando...</div>
-        </div>
-        <div class="chart-container">
-          <h5><i class="fas fa-boxes"></i> Unidades Mensuales</h5>
-          <div id="monthlyUnitsChart"></div>
-          <div class="chart-summary" id="monthlyUnitsSummary">Cargando...</div>
-        </div>
+        <div class="chart-container"><h5><i class="fas fa-tag"></i> Ingresos por Marca</h5><div id="salesByBrandRevenueChart"></div><div class="chart-summary" id="salesByBrandRevenueSummary">Cargando...</div></div>
+        <div class="chart-container"><h5><i class="fas fa-medal"></i> Top 5 Productos</h5><div id="topProductsChart"></div><div class="chart-summary" id="topProductsSummary">Cargando...</div></div>
+        <div class="chart-container"><h5><i class="fas fa-boxes"></i> Unidades Mensuales</h5><div id="monthlyUnitsChart"></div><div class="chart-summary" id="monthlyUnitsSummary">Cargando...</div></div>
       </div>
     </div>
+    <footer>© <span id="currentYear"></span> Dashboard Compacto</footer>
+  </div>
 
     <!-- Pie de Página -->
     <footer>© <span id="currentYear"></span> Dashboard Compacto</footer>
@@ -398,184 +334,145 @@ Crea el archivo `index.html`:
 Crea el archivo `style.css`:
 
 ```css
-body { 
-  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
-  background: #f0f2f5; 
-  margin: 0; 
-  overflow-x: hidden; 
-}
-
-.dashboard-wrapper { 
-  padding: 1rem; 
-  max-width: 1772px; 
-  margin: auto; 
-  box-sizing: border-box;
-}
-
-.dashboard-header { 
-  background: linear-gradient(135deg, #5b67ca, #4a7ec1); 
-  color: white; 
-  padding: 1rem; 
-  border-radius: 8px; 
-  text-align: center; 
-  margin-bottom: 1rem; 
-}
-
-.kpi-row { 
-  display: flex; 
-  gap: 1rem; 
-  margin-bottom: 1rem; 
-  flex-wrap: wrap; 
-}
-
-.kpi-card { 
-  flex: 1; 
-  background: white; 
-  border-radius: 8px; 
-  padding: 1rem; 
-  text-align: center; 
-  box-shadow: 0 0 8px rgba(0,0,0,0.1); 
-  min-width: 200px; 
-}
-
-.kpi-card i { 
-  font-size: 2rem; 
-  margin-bottom: .5rem; 
-}
-
-/* Estilos para la sección de Filtros */
-.filters-section {
-  background: white;
-  padding: 1rem;
-  border-radius: 8px;
-  box-shadow: 0 0 8px rgba(0,0,0,0.1);
-  margin-bottom: 1rem;
-  display: flex;
-  flex-wrap: wrap;
-  gap: 1rem;
-  align-items: flex-end;
-}
-
-.filter-group {
-  display: flex;
-  flex-direction: column;
-  gap: 0.25rem;
-  min-width: 180px;
-  flex-grow: 1;
-}
-
-.filter-group label {
-  font-size: 0.85rem;
-  font-weight: 500;
-  color: #333;
-}
-
-.filter-group select, .filter-group input {
-  padding: 0.375rem 0.75rem;
-  font-size: 0.9rem;
-  border-radius: 0.25rem;
-  border: 1px solid #ced4da;
-  box-sizing: border-box;
-}
-
-.filter-group button {
-    padding: 0.45rem 1rem;
-    height: calc(0.375rem * 2 + 0.9rem + 2px + 0.5rem);
-}
-
-.charts-grid { 
-  display: flex; 
-  flex-direction: column; 
-  gap: 1rem; 
-}
-
-.chart-row { 
-  display: flex; 
-  gap: 1rem; 
-  flex-wrap: wrap; 
-}
-
-.chart-container { 
-  background: white; 
-  border-radius: 8px; 
-  padding: 1rem;
-  flex: 1; 
-  box-shadow: 0 0 8px rgba(0,0,0,0.1); 
-  min-width: 300px;
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-}
-
-.chart-container > div:first-of-type { 
-   min-height: 210px;
-   flex-grow: 1;
-}
-
-.chart-summary {
-  font-size: 0.82rem; 
-  color: #555;
-  margin-top: 10px;
-  padding: 8px; 
-  background-color: #f9f9f9;
-  border-radius: 4px;
-  text-align: center;
-  border: 1px solid #eee;
-  line-height: 1.5; 
-  min-height: 3.5em;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.text-highlight-green { color: #28a745; font-weight: bold; }
-.text-highlight-blue { color: #007bff; font-weight: bold; }
-.text-highlight-orange { color: #fd7e14; font-weight: bold; }
-.text-highlight-red { color: #dc3545; font-weight: bold; }
-.no-data-summary { font-style: italic; color: #777; }
-
-footer { 
-  text-align: center; 
-  font-size: .85rem; 
-  color: #666; 
-  margin-top: 2rem;
-  padding-bottom: 1rem;
-}
-
-/* Media Queries para Responsividad */
-@media (max-width: 1200px) { 
-    .filter-group {
-        min-width: calc(33.333% - 1rem);
+ body { 
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
+      background: #f0f2f5; 
+      margin: 0; 
+      overflow-x: hidden; 
     }
-}
-
-@media (max-width: 992px) {
-  .kpi-row, .chart-row {
-    flex-direction: column;
-  }
-  .kpi-card, .chart-container {
-    min-width: 100%;
-  }
-  .chart-summary {
-    font-size: 0.78rem; 
-  }
-   .filter-group {
-        min-width: calc(50% - 0.5rem);
+    .dashboard-wrapper { 
+      padding: 1rem; 
+      max-width: 1772px; 
+      margin: auto; 
+      box-sizing: border-box;
     }
-}
-
-@media (max-width: 576px) {
-    .filter-group {
-        min-width: 100%;
+    .dashboard-header { 
+      background: linear-gradient(135deg, #5b67ca, #4a7ec1); 
+      color: white; 
+      padding: 1rem; 
+      border-radius: 8px; 
+      text-align: center; 
+      margin-bottom: 1rem; 
     }
+    .kpi-row { 
+      display: flex; 
+      gap: 1rem; 
+      margin-bottom: 1rem; 
+      flex-wrap: wrap; 
+    }
+    .kpi-card { 
+      flex: 1; 
+      background: white; 
+      border-radius: 8px; 
+      padding: 1rem; 
+      text-align: center; 
+      box-shadow: 0 0 8px rgba(0,0,0,0.1); 
+      min-width: 200px; 
+    }
+    .kpi-card i { 
+      font-size: 2rem; 
+      margin-bottom: .5rem; 
+    }
+    
     .filters-section {
-        flex-direction: column;
-        align-items: stretch;
+      background: white;
+      padding: 1rem;
+      border-radius: 8px;
+      box-shadow: 0 0 8px rgba(0,0,0,0.1);
+      margin-bottom: 1rem;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 1rem;
+      align-items: flex-end; 
+    }
+    .filter-group {
+      display: flex;
+      flex-direction: column;
+      gap: 0.25rem;
+      min-width: 180px; 
+      flex-grow: 1;
+    }
+    .filter-group label {
+      font-size: 0.85rem;
+      font-weight: 500;
+      color: #333;
+    }
+    .filter-group select, .filter-group input {
+      padding: 0.375rem 0.75rem;
+      font-size: 0.9rem;
+      border-radius: 0.25rem;
+      border: 1px solid #ced4da;
     }
     .filter-group button {
-        margin-top: 0.5rem;
+        padding: 0.45rem 1rem; 
     }
-}
+
+    .charts-grid { 
+      display: flex; 
+      flex-direction: column; 
+      gap: 1rem; 
+    }
+    .chart-row { 
+      display: flex; 
+      gap: 1rem; 
+      flex-wrap: wrap; 
+    }
+    .chart-container { 
+      background: white; 
+      border-radius: 8px; 
+      padding: 1rem;
+      flex: 1; 
+      box-shadow: 0 0 8px rgba(0,0,0,0.1); 
+      min-width: 300px; 
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between; 
+    }
+    .chart-container > div:first-of-type { 
+       min-height: 210px; /* Para chart.height = 170px */
+    }
+    .chart-summary {
+      font-size: 0.82rem; 
+      color: #555;
+      margin-top: 10px; 
+      padding: 8px; 
+      background-color: #f9f9f9;
+      border-radius: 4px;
+      text-align: center;
+      border: 1px solid #eee;
+      line-height: 1.5; 
+      min-height: 3.5em; 
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .text-highlight-green { color: #28a745; font-weight: bold; }
+    .text-highlight-blue { color: #007bff; font-weight: bold; }
+    .text-highlight-orange { color: #fd7e14; font-weight: bold; }
+    .text-highlight-red { color: #dc3545; font-weight: bold; }
+    .no-data-summary { font-style: italic; color: #777; }
+
+    footer { 
+      text-align: center; 
+      font-size: .85rem; 
+      color: #666; 
+      margin-top: 1.5rem; 
+    }
+     @media (max-width: 1200px) { 
+        .filter-group { min-width: calc(33.33% - 1rem); }
+    }
+    @media (max-width: 768px) {
+        .filter-group { min-width: calc(50% - 0.5rem); }
+    }
+    @media (max-width: 576px) {
+        .filter-group { min-width: 100%; }
+        .filters-section { flex-direction: column; align-items: stretch; }
+    }
+    @media (max-width: 992px) {
+      .kpi-row, .chart-row { flex-direction: column; }
+      .kpi-card, .chart-container { min-width: 100%; }
+      .chart-summary { font-size: 0.78rem; }
+    }
 ```
 
 ## 🧠 Lógica JavaScript
