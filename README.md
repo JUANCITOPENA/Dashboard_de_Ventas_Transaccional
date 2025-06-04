@@ -318,7 +318,8 @@ Crea un archivo llamado `index.html` en la raíz de la carpeta de tu proyecto. P
 </body>
 </html>
    ```
-
+Paso 2.2: Estilos CSS (style.css) 💅
+Crea un archivo style.css en la misma carpeta que index.html y pega los siguientes estilos:
 
 ```css
 /* style.css */
