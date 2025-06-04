@@ -713,4 +713,333 @@ document.addEventListener('DOMContentLoaded', () => {
             monthlyDataMap: {},
             revenueByChannel: {},
             revenueByCountry: {},
-            salesByBran
+           salesByBrandRevenue: {},
+            topProducts: {},
+            monthlyUnitsMap: {}
+        };
+
+        transactionsToProcess.forEach(transaction => {
+            const revenue = parseFloat(transaction.revenue) || 0;
+            const units = parseInt(transaction.units) || 0;
+
+            // KPIs
+            processed.kpis.totalRevenue += revenue;
+            if (transaction.os === 'Android') {
+                processed.kpis.androidRevenue += revenue;
+            } else if (transaction.os === 'iOS') {
+                processed.kpis.iosRevenue += revenue;
+            }
+
+            // Datos mensuales
+            const monthYear = transaction.monthYear;
+            if (!processed.monthlyDataMap[monthYear]) {
+                processed.monthlyDataMap[monthYear] = { revenue: 0, units: 0 };
+            }
+            processed.monthlyDataMap[monthYear].revenue += revenue;
+            processed.monthlyDataMap[monthYear].units += units;
+
+            // Ingresos por canal
+            if (!processed.revenueByChannel[transaction.channel]) {
+                processed.revenueByChannel[transaction.channel] = 0;
+            }
+            processed.revenueByChannel[transaction.channel] += revenue;
+
+            // Ingresos por país
+            if (!processed.revenueByCountry[transaction.country]) {
+                processed.revenueByCountry[transaction.country] = 0;
+            }
+            processed.revenueByCountry[transaction.country] += revenue;
+
+            // Ingresos por marca
+            if (!processed.salesByBrandRevenue[transaction.brand]) {
+                processed.salesByBrandRevenue[transaction.brand] = 0;
+            }
+            processed.salesByBrandRevenue[transaction.brand] += revenue;
+
+            // Top productos
+            if (!processed.topProducts[transaction.model]) {
+                processed.topProducts[transaction.model] = 0;
+            }
+            processed.topProducts[transaction.model] += revenue;
+
+            // Unidades mensuales
+            if (!processed.monthlyUnitsMap[monthYear]) {
+                processed.monthlyUnitsMap[monthYear] = 0;
+            }
+            processed.monthlyUnitsMap[monthYear] += units;
+        });
+
+        return processed;
+    }
+
+    function updateKPIs(processed) {
+        document.getElementById('totalRevenue').textContent = formatCurrency(processed.kpis.totalRevenue);
+        document.getElementById('androidRevenue').textContent = formatCurrency(processed.kpis.androidRevenue);
+        document.getElementById('iosRevenue').textContent = formatCurrency(processed.kpis.iosRevenue);
+    }
+
+    function updateCharts(processed) {
+        // Ingresos Mensuales
+        const monthlyLabels = Object.keys(processed.monthlyDataMap).sort((a, b) => new Date(a) - new Date(b));
+        const monthlyRevenues = monthlyLabels.map(month => processed.monthlyDataMap[month].revenue);
+        
+        if (charts.monthlyRevenue) {
+            charts.monthlyRevenue.updateSeries([{ data: monthlyRevenues }]);
+            charts.monthlyRevenue.updateOptions({ xaxis: { categories: monthlyLabels } });
+        } else {
+            charts.monthlyRevenue = new ApexCharts(document.querySelector("#monthlyRevenueChart"), {
+                ...commonChartOptionsBase,
+                series: [{ name: 'Ingresos', data: monthlyRevenues }],
+                chart: { ...commonChartOptionsBase.chart, type: 'line' },
+                xaxis: { categories: monthlyLabels },
+                stroke: { curve: 'smooth', width: 3 },
+                colors: ['#5b67ca']
+            });
+            charts.monthlyRevenue.render();
+        }
+
+        // Resumen mensual
+        const totalMonthlyRevenue = monthlyRevenues.reduce((sum, val) => sum + val, 0);
+        const avgMonthlyRevenue = monthlyRevenues.length > 0 ? totalMonthlyRevenue / monthlyRevenues.length : 0;
+        const bestMonth = monthlyLabels[monthlyRevenues.indexOf(Math.max(...monthlyRevenues))];
+        document.getElementById('monthlyRevenueSummary').innerHTML = 
+            `Promedio mensual: <span class="text-highlight-blue">${formatCurrency(avgMonthlyRevenue)}</span><br>
+             Mejor mes: <span class="text-highlight-green">${bestMonth || 'N/A'}</span>`;
+
+        // Ingresos por Canal
+        const channelLabels = Object.keys(processed.revenueByChannel);
+        const channelValues = channelLabels.map(channel => processed.revenueByChannel[channel]);
+        
+        if (charts.revenueByChannel) {
+            charts.revenueByChannel.updateSeries(channelValues);
+            charts.revenueByChannel.updateOptions({ labels: channelLabels });
+        } else {
+            charts.revenueByChannel = new ApexCharts(document.querySelector("#revenueByChannelChart"), {
+                ...commonChartOptionsBase,
+                series: channelValues,
+                chart: { ...commonChartOptionsBase.chart, type: 'donut' },
+                labels: channelLabels,
+                colors: ['#5b67ca', '#4a7ec1', '#28a745', '#fd7e14']
+            });
+            charts.revenueByChannel.render();
+        }
+
+        // Resumen por canal
+        const bestChannel = channelLabels[channelValues.indexOf(Math.max(...channelValues))];
+        const bestChannelRevenue = Math.max(...channelValues);
+        document.getElementById('revenueByChannelSummary').innerHTML = 
+            `Mejor canal: <span class="text-highlight-green">${bestChannel || 'N/A'}</span><br>
+             Ingresos: <span class="text-highlight-blue">${formatCurrency(bestChannelRevenue)}</span>`;
+
+        // Ingresos por País (Top 8)
+        const sortedCountries = Object.entries(processed.revenueByCountry)
+            .sort((a, b) => b[1] - a[1])
+            .slice(0, 8);
+        const countryLabels = sortedCountries.map(entry => entry[0]);
+        const countryValues = sortedCountries.map(entry => entry[1]);
+        
+        if (charts.revenueByCountry) {
+            charts.revenueByCountry.updateSeries([{ data: countryValues }]);
+            charts.revenueByCountry.updateOptions({ xaxis: { categories: countryLabels } });
+        } else {
+            charts.revenueByCountry = new ApexCharts(document.querySelector("#revenueByCountryChart"), {
+                ...commonChartOptionsBase,
+                series: [{ name: 'Ingresos', data: countryValues }],
+                chart: { ...commonChartOptionsBase.chart, type: 'bar' },
+                xaxis: { categories: countryLabels },
+                colors: ['#28a745']
+            });
+            charts.revenueByCountry.render();
+        }
+
+        // Resumen por país
+        const topCountry = countryLabels[0];
+        const topCountryRevenue = countryValues[0];
+        document.getElementById('revenueByCountrySummary').innerHTML = 
+            `País líder: <span class="text-highlight-green">${topCountry || 'N/A'}</span><br>
+             Ingresos: <span class="text-highlight-blue">${formatCurrency(topCountryRevenue)}</span>`;
+
+        // Ingresos por Marca
+        const brandLabels = Object.keys(processed.salesByBrandRevenue);
+        const brandValues = brandLabels.map(brand => processed.salesByBrandRevenue[brand]);
+        
+        if (charts.salesByBrandRevenue) {
+            charts.salesByBrandRevenue.updateSeries([{ data: brandValues }]);
+            charts.salesByBrandRevenue.updateOptions({ xaxis: { categories: brandLabels } });
+        } else {
+            charts.salesByBrandRevenue = new ApexCharts(document.querySelector("#salesByBrandRevenueChart"), {
+                ...commonChartOptionsBase,
+                series: [{ name: 'Ingresos', data: brandValues }],
+                chart: { ...commonChartOptionsBase.chart, type: 'bar' },
+                xaxis: { categories: brandLabels },
+                colors: ['#fd7e14']
+            });
+            charts.salesByBrandRevenue.render();
+        }
+
+        // Resumen por marca
+        const topBrand = brandLabels[brandValues.indexOf(Math.max(...brandValues))];
+        const topBrandRevenue = Math.max(...brandValues);
+        document.getElementById('salesByBrandRevenueSummary').innerHTML = 
+            `Marca líder: <span class="text-highlight-green">${topBrand || 'N/A'}</span><br>
+             Ingresos: <span class="text-highlight-blue">${formatCurrency(topBrandRevenue)}</span>`;
+
+        // Top 5 Productos
+        const sortedProducts = Object.entries(processed.topProducts)
+            .sort((a, b) => b[1] - a[1])
+            .slice(0, 5);
+        const productLabels = sortedProducts.map(entry => entry[0]);
+        const productValues = sortedProducts.map(entry => entry[1]);
+        
+        if (charts.topProducts) {
+            charts.topProducts.updateSeries([{ data: productValues }]);
+            charts.topProducts.updateOptions({ xaxis: { categories: productLabels } });
+        } else {
+            charts.topProducts = new ApexCharts(document.querySelector("#topProductsChart"), {
+                ...commonChartOptionsBase,
+                series: [{ name: 'Ingresos', data: productValues }],
+                chart: { ...commonChartOptionsBase.chart, type: 'bar' },
+                xaxis: { categories: productLabels },
+                colors: ['#dc3545']
+            });
+            charts.topProducts.render();
+        }
+
+        // Resumen productos
+        const topProduct = productLabels[0];
+        const topProductRevenue = productValues[0];
+        document.getElementById('topProductsSummary').innerHTML = 
+            `Producto estrella: <span class="text-highlight-green">${topProduct || 'N/A'}</span><br>
+             Ingresos: <span class="text-highlight-blue">${formatCurrency(topProductRevenue)}</span>`;
+
+        // Unidades Mensuales
+        const monthlyUnitsLabels = Object.keys(processed.monthlyUnitsMap).sort((a, b) => new Date(a) - new Date(b));
+        const monthlyUnitsValues = monthlyUnitsLabels.map(month => processed.monthlyUnitsMap[month]);
+        
+        if (charts.monthlyUnits) {
+            charts.monthlyUnits.updateSeries([{ data: monthlyUnitsValues }]);
+            charts.monthlyUnits.updateOptions({ xaxis: { categories: monthlyUnitsLabels } });
+        } else {
+            charts.monthlyUnits = new ApexCharts(document.querySelector("#monthlyUnitsChart"), {
+                ...commonChartOptionsBase,
+                series: [{ name: 'Unidades', data: monthlyUnitsValues }],
+                chart: { ...commonChartOptionsBase.chart, type: 'area' },
+                xaxis: { categories: monthlyUnitsLabels },
+                yaxis: { 
+                    labels: { 
+                        style: {fontSize: '10px'}, 
+                        formatter: (val) => formatNumber(val)
+                    }
+                },
+                fill: { opacity: 0.3 },
+                colors: ['#007bff']
+            });
+            charts.monthlyUnits.render();
+        }
+
+        // Resumen unidades
+        const totalUnits = monthlyUnitsValues.reduce((sum, val) => sum + val, 0);
+        const avgUnits = monthlyUnitsValues.length > 0 ? totalUnits / monthlyUnitsValues.length : 0;
+        document.getElementById('monthlyUnitsSummary').innerHTML = 
+            `Total unidades: <span class="text-highlight-blue">${formatNumber(totalUnits)}</span><br>
+             Promedio mensual: <span class="text-highlight-green">${formatNumber(avgUnits)}</span>`;
+    }
+
+    function getFilteredTransactions() {
+        const filterMonthStart = document.getElementById('filterMonthStart').value;
+        const filterMonthEnd = document.getElementById('filterMonthEnd').value;
+        const filterBrand = document.getElementById('filterBrand').value;
+        const filterProduct = document.getElementById('filterProduct').value;
+        const filterCountry = document.getElementById('filterCountry').value;
+        const filterChannel = document.getElementById('filterChannel').value;
+
+        return allTransactions.filter(transaction => {
+            // Filtro por rango de fechas
+            if (filterMonthStart && filterMonthEnd) {
+                const transactionDate = new Date(transaction.monthYear);
+                const startDate = new Date(filterMonthStart);
+                const endDate = new Date(filterMonthEnd);
+                if (transactionDate < startDate || transactionDate > endDate) {
+                    return false;
+                }
+            }
+
+            // Otros filtros
+            if (filterBrand && transaction.brand !== filterBrand) return false;
+            if (filterProduct && transaction.model !== filterProduct) return false;
+            if (filterCountry && transaction.country !== filterCountry) return false;
+            if (filterChannel && transaction.channel !== filterChannel) return false;
+
+            return true;
+        });
+    }
+
+    function updateDashboard() {
+        const filteredTransactions = getFilteredTransactions();
+        const processed = processTransactions(filteredTransactions);
+        updateKPIs(processed);
+        updateCharts(processed);
+    }
+
+    function setupEventListeners() {
+        const filterElements = [
+            'filterMonthStart', 'filterMonthEnd', 'filterBrand', 
+            'filterProduct', 'filterCountry', 'filterChannel'
+        ];
+        
+        filterElements.forEach(id => {
+            const element = document.getElementById(id);
+            if (element) {
+                element.addEventListener('change', updateDashboard);
+            }
+        });
+
+        // Botón de limpiar filtros
+        const resetButton = document.getElementById('resetFilters');
+        if (resetButton) {
+            resetButton.addEventListener('click', () => {
+                filterElements.forEach(id => {
+                    const element = document.getElementById(id);
+                    if (element) {
+                        if (id === 'filterMonthStart' || id === 'filterMonthEnd') {
+                            // Resetear a rango completo
+                            const uniqueMonths = [...new Set(allTransactions.map(t => t.monthYear))]
+                                .sort((a, b) => new Date(a) - new Date(b));
+                            if (uniqueMonths.length > 0) {
+                                if (id === 'filterMonthStart') {
+                                    element.value = uniqueMonths[0];
+                                } else {
+                                    element.value = uniqueMonths[uniqueMonths.length - 1];
+                                }
+                            }
+                        } else {
+                            element.value = '';
+                        }
+                    }
+                });
+                updateDashboard();
+            });
+        }
+    }
+
+    // Cargar datos y inicializar dashboard
+    fetch('sales_data.json')
+        .then(response => {
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+            return response.json();
+        })
+        .then(data => {
+            console.log('Datos cargados:', data.length, 'transacciones');
+            allTransactions = data;
+            initializeFilters(allTransactions);
+            setupEventListeners();
+            updateDashboard();
+        })
+        .catch(error => {
+            console.error('Error al cargar los datos:', error);
+            document.querySelector('.dashboard-wrapper').innerHTML = 
+                '<div class="alert alert-danger">Error al cargar los datos. Asegúrate de que el archivo sales_data.json esté disponible.</div>';
+        });
+});
