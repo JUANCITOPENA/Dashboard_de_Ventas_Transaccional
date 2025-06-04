@@ -583,463 +583,424 @@ footer {
 Crea el archivo `script.js`:
 
 ```javascript
-document.addEventListener('DOMContentLoaded', () => {
-    // --- Funciones de utilidad ---
-    document.getElementById('currentYear').textContent = new Date().getFullYear();
-    const formatCurrency = val => new Intl.NumberFormat("es-ES", { 
-        style: "currency", 
-        currency: "EUR", 
-        maximumFractionDigits: 0 
-    }).format(val);
-    const formatNumber = val => new Intl.NumberFormat("es-ES", { 
-        maximumFractionDigits: 0 
-    }).format(val);
+// --- Funciones de utilidad ---
+document.getElementById('currentYear').textContent = new Date().getFullYear();
+const formatCurrency = val => new Intl.NumberFormat("es-ES", { style: "currency", currency: "EUR", maximumFractionDigits: 0 }).format(val);
+const formatNumber = val => new Intl.NumberFormat("es-ES", { maximumFractionDigits: 0 }).format(val);
 
-    let allTransactions = [];
-    let charts = {};
+let allTransactions = []; // Almacenará todas las transacciones originales
+let charts = {}; 
 
-    const commonChartOptionsBase = {
-        dataLabels: { enabled: false },
-        legend: { 
-            position: 'bottom', 
-            horizontalAlign: 'center', 
-            offsetY: 5, 
-            itemMargin: { horizontal: 5, vertical: 2 },
-            markers: { width: 10, height: 10 }, 
-            fontSize: '11px' 
-        },
-        chart: { 
-            height: 170,
-            toolbar: { 
-                show: true, 
-                tools: { 
-                    download: true, 
-                    selection: false, 
-                    zoom: false, 
-                    zoomin: false, 
-                    zoomout: false, 
-                    pan: false, 
-                    reset: true 
-                } 
+const commonChartOptionsBase = {
+    dataLabels: { enabled: false },
+    legend: { 
+        position: 'bottom', horizontalAlign: 'center', offsetY: 5, 
+        itemMargin: { horizontal: 5, vertical: 2 },
+        markers: { width: 10, height: 10 }, fontSize: '11px' 
+    },
+    chart: { 
+        height: 200, 
+        toolbar: { show: true, tools: { download: true, selection: false, zoom: false, zoomin: false, zoomout: false, pan: false, reset: true } }
+    },
+    grid: { padding: { top: 5, right: 10, bottom: 0, left: 15 } },
+    yaxis: { 
+        labels: { 
+            style: {fontSize: '10px'}, 
+            formatter: (val) => { 
+                if (val === undefined || val === null) return '';
+                if (Math.abs(val) >= 1000000) return formatCurrency(val / 1000000) + 'M';
+                if (Math.abs(val) >= 1000) return formatCurrency(val / 1000) + 'K';
+                return formatCurrency(val);
             }
-        },
-        grid: { padding: { top: 5, right: 10, bottom: 0, left: 15 } },
-        yaxis: { 
-            labels: { 
-                style: {fontSize: '10px'}, 
-                formatter: (val) => { 
-                    if (val === undefined || val === null) return '';
-                    if (Math.abs(val) >= 1000000) return formatCurrency(val / 1000000) + 'M';
-                    if (Math.abs(val) >= 1000) return formatCurrency(val / 1000) + 'K';
-                    return formatCurrency(val);
-                }
-            }
-        },
-        xaxis: {
-            labels: {
-                style: { fontSize: '10px' },
-                rotate: -45,
-                trim: true,
-                hideOverlappingLabels: true
-            }
-        },
-        noData: {
-            text: 'Sin datos para mostrar.',
-            align: 'center', 
-            verticalAlign: 'middle',
-            style: { color: "#666666", fontSize: '14px' }
         }
+    },
+    xaxis: {
+        labels: {
+            style: { fontSize: '10px' },
+            rotate: -5,
+            trim: true,
+            hideOverlappingLabels: true
+        }
+    },
+    noData: { // Mensaje para cuando no hay datos en un gráfico
+        text: 'Sin datos para mostrar con los filtros actuales.',
+        align: 'center',
+        verticalAlign: 'middle',
+        offsetX: 0,
+        offsetY: 0,
+        style: {
+          color: "#666666",
+          fontSize: '14px',
+          fontFamily: undefined
+        }
+    }
+};
+
+function populateSelect(selectId, optionsArray, hasAllOption = true, valueKey = null, textKey = null) {
+    const selectElement = document.getElementById(selectId);
+    if (!selectElement) { console.error(`Select con ID '${selectId}' no encontrado.`); return; }
+    selectElement.innerHTML = ''; 
+    if (hasAllOption) {
+        const allOption = document.createElement('option');
+        allOption.value = "";
+        let allText = "Todos";
+        if (selectId === "filterMonthStart" || selectId === "filterMonthEnd") allText = "N/A"; // No tiene sentido "Todos" para rango
+        else if (selectId === "filterBrand") allText = "Todas las Marcas";
+        else if (selectId === "filterProduct") allText = "Todos los Productos";
+        else if (selectId === "filterCountry") allText = "Todos los Países";
+        else if (selectId === "filterChannel") allText = "Todos los Canales";
+        allOption.textContent = allText;
+        selectElement.appendChild(allOption);
+    }
+    optionsArray.forEach(optionData => {
+        const opt = document.createElement('option');
+        opt.value = valueKey ? optionData[valueKey] : optionData;
+        opt.textContent = textKey ? optionData[textKey] : optionData;
+        selectElement.appendChild(opt);
+    });
+}
+
+function initializeFilters(transactions) {
+    if (!transactions || transactions.length === 0) { 
+        console.warn("initializeFilters: No hay transacciones para inicializar filtros."); 
+        // Deshabilitar filtros si no hay datos
+        document.querySelectorAll('.filters-section select, .filters-section button').forEach(el => el.disabled = true);
+        return; 
+    }
+
+    const uniqueMonths = [...new Set(transactions.map(t => t.monthYear))].sort((a, b) => new Date(a) - new Date(b));
+    populateSelect('filterMonthStart', uniqueMonths, false); 
+    populateSelect('filterMonthEnd', uniqueMonths, false);
+    if (uniqueMonths.length > 0) { 
+        document.getElementById('filterMonthStart').value = uniqueMonths[0];
+        document.getElementById('filterMonthEnd').value = uniqueMonths[uniqueMonths.length - 1]; 
+    }
+
+    const uniqueBrands = [...new Set(transactions.map(t => t.brand))].sort();
+    populateSelect('filterBrand', uniqueBrands);
+
+    const uniqueProducts = [...new Set(transactions.map(t => t.model))].sort();
+    populateSelect('filterProduct', uniqueProducts); 
+    
+    const uniqueCountries = [...new Set(transactions.map(t => t.country))].sort();
+    populateSelect('filterCountry', uniqueCountries);
+
+    const uniqueChannels = [...new Set(transactions.map(t => t.channel))].sort();
+    populateSelect('filterChannel', uniqueChannels);
+}
+
+function processTransactions(transactionsToProcess) {
+    const processed = {
+        kpis: { totalRevenue: 0, androidRevenue: 0, iosRevenue: 0 },
+        monthlyData: {}, // { 'Jan 2024': { month: 'Jan 2024', androidUnits: 0, ... }}
+        revenueByChannel: {},
+        revenueByCountry: {},
+        salesByBrand: {}, // { 'Samsung': { units: 0, revenue: 0 }}
+        productPerformance: {} // { 'Galaxy S25': { revenue: 0, units: 0 }}
     };
 
-    function populateSelect(selectId, optionsArray, hasAllOption = true, valueKey = null, textKey = null) {
-        const selectElement = document.getElementById(selectId);
-        if (!selectElement) { 
-            console.error(`Select con ID '${selectId}' no encontrado.`); 
-            return; 
+    transactionsToProcess.forEach(t => {
+        // KPIs
+        processed.kpis.totalRevenue += t.revenue;
+        if (t.os === 'Android') processed.kpis.androidRevenue += t.revenue;
+        if (t.os === 'iOS') processed.kpis.iosRevenue += t.revenue;
+
+        // Monthly Data
+        if (!processed.monthlyData[t.monthYear]) {
+            processed.monthlyData[t.monthYear] = { month: t.monthYear, androidUnits: 0, iosUnits: 0, androidRevenue: 0, iosRevenue: 0 };
         }
-        selectElement.innerHTML = ''; 
-        if (hasAllOption) {
-            const allOption = document.createElement('option');
-            allOption.value = "";
-            let allText = "Todos";
-            if (selectId === "filterMonthStart" || selectId === "filterMonthEnd") allText = "N/A";
-            else if (selectId === "filterBrand") allText = "Todas las Marcas";
-            else if (selectId === "filterProduct") allText = "Todos los Productos";
-            else if (selectId === "filterCountry") allText = "Todos los Países";
-            else if (selectId === "filterChannel") allText = "Todos los Canales";
-            allOption.textContent = allText;
-            selectElement.appendChild(allOption);
+        if (t.os === 'Android') {
+            processed.monthlyData[t.monthYear].androidUnits += t.units;
+            processed.monthlyData[t.monthYear].androidRevenue += t.revenue;
+        } else if (t.os === 'iOS') {
+            processed.monthlyData[t.monthYear].iosUnits += t.units;
+            processed.monthlyData[t.monthYear].iosRevenue += t.revenue;
         }
-        optionsArray.forEach(optionData => {
-            const opt = document.createElement('option');
-            opt.value = valueKey ? optionData[valueKey] : (optionData.value !== undefined ? optionData.value : optionData);
-            opt.textContent = textKey ? optionData[textKey] : (optionData.text !== undefined ? optionData.text : optionData);
-            selectElement.appendChild(opt);
-        });
+
+        // Revenue by Channel
+        processed.revenueByChannel[t.channel] = (processed.revenueByChannel[t.channel] || 0) + t.revenue;
+        // Revenue by Country
+        processed.revenueByCountry[t.country] = (processed.revenueByCountry[t.country] || 0) + t.revenue;
+        
+        // Sales by Brand
+        if (!processed.salesByBrand[t.brand]) processed.salesByBrand[t.brand] = { units: 0, revenue: 0 };
+        processed.salesByBrand[t.brand].units += t.units;
+        processed.salesByBrand[t.brand].revenue += t.revenue;
+
+        // Product Performance
+        if (!processed.productPerformance[t.model]) processed.productPerformance[t.model] = { revenue: 0, units: 0, brand: t.brand };
+        processed.productPerformance[t.model].revenue += t.revenue;
+        processed.productPerformance[t.model].units += t.units;
+    });
+
+    // Convertir monthlyData de objeto a array ordenado
+    processed.monthlyData = Object.values(processed.monthlyData).sort((a,b) => new Date(a.month) - new Date(b.month));
+    
+    // Obtener top 10 productos
+    processed.top10Products = Object.entries(processed.productPerformance)
+        .map(([model, data]) => ({ model, ...data }))
+        .sort((a, b) => b.revenue - a.revenue)
+        .slice(0, 10);
+
+    return processed;
+}
+
+
+function applyFilters() {
+    if (!allTransactions || allTransactions.length === 0) {
+        console.warn("applyFilters llamado sin transacciones base.");
+        // Podríamos mostrar un dashboard completamente vacío
+        updateDashboard(processTransactions([])); // Llama con array vacío para limpiar
+        return;
+    }
+    console.log("Aplicando filtros...");
+
+    const selectedMonthStart = document.getElementById('filterMonthStart').value;
+    const selectedMonthEnd = document.getElementById('filterMonthEnd').value;
+    const selectedBrand = document.getElementById('filterBrand').value;
+    const selectedProductModel = document.getElementById('filterProduct').value;
+    const selectedCountry = document.getElementById('filterCountry').value;
+    const selectedChannel = document.getElementById('filterChannel').value;
+
+    const dateMonthStart = selectedMonthStart ? new Date(selectedMonthStart) : null;
+    const dateMonthEnd = selectedMonthEnd ? new Date(selectedMonthEnd) : null;
+    if(dateMonthEnd) dateMonthEnd.setMonth(dateMonthEnd.getMonth() + 1, 0); // Ir al último día de ese mes
+
+    let filteredTransactions = allTransactions.filter(t => {
+        const transactionDate = new Date(t.date); // Asumiendo que t.date es 'YYYY-MM-DD'
+        
+        if (dateMonthStart && transactionDate < dateMonthStart) return false;
+        if (dateMonthEnd && transactionDate > dateMonthEnd) return false;
+        if (selectedBrand && t.brand !== selectedBrand) return false;
+        if (selectedProductModel && t.model !== selectedProductModel) return false;
+        if (selectedCountry && t.country !== selectedCountry) return false;
+        if (selectedChannel && t.channel !== selectedChannel) return false;
+        return true;
+    });
+    
+    const aggregatedData = processTransactions(filteredTransactions);
+    console.log("Datos agregados después de filtros:", aggregatedData);
+    updateDashboard(aggregatedData);
+}
+
+function updateDashboard(data) {
+    console.log("Actualizando dashboard con:", data);
+    if (!data || !data.kpis) {
+        console.error("UpdateDashboard: Faltan datos o data.kpis.");
+        document.querySelectorAll('.chart-summary').forEach(div => div.innerHTML = `<span class="no-data-summary">Error interno.</span>`);
+        return;
     }
 
-    function initializeFilters(transactions) {
-        if (!transactions || transactions.length === 0) { 
-            console.warn("initializeFilters: No hay transacciones."); 
-            document.querySelectorAll('.filters-section select, .filters-section button').forEach(el => el.disabled = true);
-            return; 
-        }
+    document.getElementById("totalRevenue").textContent = formatCurrency(data.kpis.totalRevenue || 0);
+    document.getElementById("androidRevenue").textContent = formatCurrency(data.kpis.androidRevenue || 0);
+    document.getElementById("iosRevenue").textContent = formatCurrency(data.kpis.iosRevenue || 0);
+    
+    const monthlyChartData = data.monthlyData || [];
+    const monthlyCategories = monthlyChartData.map(m => m.month);
 
-        const uniqueMonths = [...new Set(transactions.map(t => t.monthYear))]
-            .sort((a, b) => new Date(a) - new Date(b));
-        populateSelect('filterMonthStart', uniqueMonths, false); 
-        populateSelect('filterMonthEnd', uniqueMonths, false);
-        if (uniqueMonths.length > 0) { 
+    // --- Ingresos Mensuales ---
+    if (charts.monthlyRevenueChart) {
+        charts.monthlyRevenueChart.updateOptions({
+            series: [
+                { name: "Android", data: monthlyChartData.map(m => m.androidRevenue || 0) },
+                { name: "iOS", data: monthlyChartData.map(m => m.iosRevenue || 0) }
+            ],
+            xaxis: { categories: monthlyCategories.length ? monthlyCategories : [''] }
+        });
+    }
+    const totalPeriodRevenue = monthlyChartData.reduce((sum, m) => sum + (m.androidRevenue || 0) + (m.iosRevenue || 0), 0);
+    const androidTotalRevenue = monthlyChartData.reduce((sum, m) => sum + (m.androidRevenue || 0), 0);
+    const iosTotalRevenue = monthlyChartData.reduce((sum, m) => sum + (m.iosRevenue || 0), 0);
+    const dominantPlatformRevenue = androidTotalRevenue > iosTotalRevenue ? 'Android' : (iosTotalRevenue > 0 ? 'iOS' : 'N/A');
+    let peakMonthRevenueData = {month: 'N/A', androidRevenue:0, iosRevenue:0};
+    if (monthlyChartData.length) {
+        peakMonthRevenueData = monthlyChartData.reduce((peak, current) => (((current.androidRevenue||0) + (current.iosRevenue||0)) > ((peak.androidRevenue||0) + (peak.iosRevenue||0))) ? current : peak, monthlyChartData[0]);
+    }
+    document.getElementById('monthlyRevenueSummary').innerHTML = monthlyChartData.length ?
+        `💰 Total: ${formatCurrency(totalPeriodRevenue)}. <span class="text-highlight-green">Pico ${peakMonthRevenueData.month}: ${formatCurrency((peakMonthRevenueData.androidRevenue||0) + (peakMonthRevenueData.iosRevenue||0))}</span>. ${dominantPlatformRevenue === 'Android' ? '🤖' : (dominantPlatformRevenue === 'iOS' ? '🍏' : '')} <span class="text-highlight-blue">${dominantPlatformRevenue}</span> lidera.` :
+        `<span class="no-data-summary">Sin datos mensuales.</span>`;
+
+    // --- Ingresos por Canal ---
+    if (charts.revenueByChannelChart) { charts.revenueByChannelChart.destroy(); charts.revenueByChannelChart = null;}
+    const revenueByChannelData = data.revenueByChannel || {};
+    const channelLabels = Object.keys(revenueByChannelData);
+    const channelSeries = Object.values(revenueByChannelData);
+    charts.revenueByChannelChart = new ApexCharts(document.querySelector("#revenueByChannelChart"), {
+      ...commonChartOptionsBase, 
+      chart: { ...commonChartOptionsBase.chart, type: 'donut'}, 
+      plotOptions: { pie: { donut: { size: '60%' } } },
+      labels: channelLabels.length ? channelLabels : ['Sin Datos'], 
+      series: channelSeries.length ? channelSeries : [0], 
+      colors: ["#1abc9c", "#3498db", "#9b59b6", "#f39c12"], 
+      tooltip: { y: { formatter: val => formatCurrency(val) } },
+      yaxis: {} 
+    });
+    charts.revenueByChannelChart.render();
+    const channelsArray = Object.entries(revenueByChannelData);
+    let topChannel = ["N/A", 0];
+    if (channelsArray.length) topChannel = channelsArray.reduce((prev, current) => (current[1] > prev[1] ? current : prev));
+    document.getElementById('revenueByChannelSummary').innerHTML = channelsArray.length ?
+        `🛍️ ${channelsArray.length > 1 ? `${channelsArray.length} canales` : "Un canal"}. <span class="text-highlight-green">${topChannel[0]}</span> destaca (${formatCurrency(topChannel[1])}).` :
+        `<span class="no-data-summary">Sin datos de canal.</span>`;
+
+    // --- Ingresos por País ---
+    const revenueByCountryData = data.revenueByCountry || {};
+    const countryCategories = Object.keys(revenueByCountryData);
+    if (charts.revenueByCountryChart) {
+        charts.revenueByCountryChart.updateOptions({
+            series: [{ name: "Ingresos", data: Object.values(revenueByCountryData) }],
+            xaxis: { categories: countryCategories.length ? countryCategories : [''] }
+        });
+    }
+    const countriesArray = Object.entries(revenueByCountryData);
+    let topCountry = ["N/A", 0]; let avgCountryRevenue = 0;
+    if (countriesArray.length) {
+        topCountry = countriesArray.reduce((prev, current) => (current[1] > prev[1] ? current : prev));
+        avgCountryRevenue = countriesArray.reduce((sum, item) => sum + item[1], 0) / countriesArray.length;
+    }
+    document.getElementById('revenueByCountrySummary').innerHTML = countriesArray.length ?
+        `🌍 <span class="text-highlight-green">${topCountry[0]}</span> lidera (${formatCurrency(topCountry[1])}). ${countriesArray.length} países, promedio: ${formatCurrency(avgCountryRevenue)}.`:
+        `<span class="no-data-summary">Sin datos de país.</span>`;
+    
+    // --- Ingresos por Marca ---
+    const salesByBrandData = data.salesByBrand || {};
+    const salesByBrandProcessed = Object.entries(salesByBrandData).map(([brand, val]) => ({ name: brand, revenue: val.revenue || 0 }));
+    const brandCategories = salesByBrandProcessed.map(item => item.name);
+    if (charts.salesByBrandRevenueChart) {
+        charts.salesByBrandRevenueChart.updateOptions({
+            series: [{ name: "Ingresos", data: salesByBrandProcessed.map(item => item.revenue) }],
+            xaxis: { categories: brandCategories.length ? brandCategories : [''] }
+        });
+    }
+    let topBrand = {name: "N/A", revenue:0}; let avgBrandRevenue = 0;
+    if(salesByBrandProcessed.length){
+        topBrand = salesByBrandProcessed.reduce((prev, current) => (current.revenue > prev.revenue ? current : prev));
+        avgBrandRevenue = salesByBrandProcessed.reduce((sum, item) => sum + item.revenue, 0) / salesByBrandProcessed.length;
+    }
+    document.getElementById('salesByBrandRevenueSummary').innerHTML = salesByBrandProcessed.length ?
+        `🏷️ <span class="text-highlight-green">${topBrand.name}</span> top (${formatCurrency(topBrand.revenue)}). ${salesByBrandProcessed.length} marcas, promedio: ${formatCurrency(avgBrandRevenue)}.`:
+        `<span class="no-data-summary">Sin datos de marca.</span>`;
+
+    // --- Top 5 Productos ---
+    const topProductsData = data.top10Products || []; // Ya está procesado y ordenado
+    const top5DisplayProducts = topProductsData.slice(0,5);
+    const productCategories = top5DisplayProducts.map(p => p.model);
+    if (charts.topProductsChart) {
+        charts.topProductsChart.updateOptions({
+            series: [{ name: "Ingresos", data: top5DisplayProducts.map(p => p.revenue || 0) }],
+            xaxis: { categories: productCategories.length ? productCategories : [''] }
+        });
+    }
+    const mainProduct = top5DisplayProducts.length ? top5DisplayProducts[0] : {model: "N/A", revenue:0};
+    const sumTop5Revenue = top5DisplayProducts.reduce((sum, p) => sum + (p.revenue || 0), 0);
+    document.getElementById('topProductsSummary').innerHTML = top5DisplayProducts.length ?
+         `🏆 Estrella: <span class="text-highlight-red">${mainProduct.model}</span> (${formatCurrency(mainProduct.revenue || 0)}). Top 5: ${formatCurrency(sumTop5Revenue)}.` :
+         `<span class="no-data-summary">Sin productos.</span>`;
+
+    // --- Unidades Mensuales ---
+    if (charts.monthlyUnitsChart) {
+         charts.monthlyUnitsChart.updateOptions({
+            series: [
+                { name: "Android", data: monthlyChartData.map(m => m.androidUnits || 0) },
+                { name: "iOS", data: monthlyChartData.map(m => m.iosUnits || 0) }
+            ],
+            xaxis: { categories: monthlyCategories.length ? monthlyCategories : [''] },
+            yaxis: { labels: { style: {fontSize: '10px'}, formatter: (val) => { return val >= 1000 ? formatNumber(val/1000)+'K' : formatNumber(val); }}}
+        });
+    }
+    const totalPeriodUnits = monthlyChartData.reduce((sum, m) => sum + (m.androidUnits || 0) + (m.iosUnits || 0), 0);
+    const androidTotalUnits = monthlyChartData.reduce((sum, m) => sum + (m.androidUnits || 0), 0);
+    const iosTotalUnits = monthlyChartData.reduce((sum, m) => sum + (m.iosUnits || 0), 0);
+    const dominantPlatformUnits = androidTotalUnits > iosTotalUnits ? 'Android' : (iosTotalUnits > 0 ? 'iOS' : 'N/A');
+    let peakMonthUnitsData = {month:'N/A', androidUnits:0, iosUnits:0};
+    if(monthlyChartData.length){
+        peakMonthUnitsData = monthlyChartData.reduce((peak, current) => {
+            const currentTotal = (current.androidUnits||0) + (current.iosUnits||0);
+            const peakTotal = (peak.androidUnits||0) + (peak.iosUnits||0);
+            return currentTotal > peakTotal ? current : peak;
+        }, monthlyChartData[0]);
+    }
+    document.getElementById('monthlyUnitsSummary').innerHTML = monthlyChartData.length ?
+        `📦 Total uds: ${formatNumber(totalPeriodUnits)}. <span class="text-highlight-orange">Pico ${peakMonthUnitsData.month}: ${formatNumber((peakMonthUnitsData.androidUnits||0) + (peakMonthUnitsData.iosUnits||0))} uds</span>. ${dominantPlatformUnits === 'Android' ? '🤖' : (dominantPlatformUnits === 'iOS' ? '🍏' : '')} <span class="text-highlight-blue">${dominantPlatformUnits}</span> lidera.` :
+        `<span class="no-data-summary">Sin datos mensuales.</span>`;
+}
+
+
+fetch('sales_data.json')
+  .then(res => {
+    console.log("Fetch - Respuesta del servidor:", res.status, res.statusText);
+    if (!res.ok) {
+      throw new Error(`Error al cargar sales_data.json: ${res.status} ${res.statusText}`);
+    }
+    return res.json();
+  })
+  .then(transactions => { // Ahora 'data' es el array de transacciones
+    console.log("Fetch - Transacciones cargadas:", transactions.length);
+    if (!Array.isArray(transactions)) {
+        throw new Error("El archivo JSON no contiene un array de transacciones.");
+    }
+    allTransactions = transactions; // Guardar todas las transacciones originales
+    
+    initializeFilters(allTransactions); // Inicializar filtros con todas las opciones posibles
+    console.log("Filtros inicializados.");
+    
+    const chartInitConfigs = [
+        {id: 'monthlyRevenueChart', type: 'area', options: {colors: ["#00bcd4", "#666"], tooltip: { y: { formatter: val => formatCurrency(val) } }}},
+        {id: 'revenueByCountryChart', type: 'bar', options: {colors: ["#34495e"], tooltip: { y: { formatter: val => formatCurrency(val) } }}},
+        {id: 'salesByBrandRevenueChart', type: 'bar', options: {colors: ["#2ecc71"], tooltip: { y: { formatter: val => formatCurrency(val) } }}},
+        {id: 'topProductsChart', type: 'bar', options: {colors: ["#e74c3c"], tooltip: { y: { formatter: val => formatCurrency(val) } }}},
+        {id: 'monthlyUnitsChart', type: 'line', options: {yaxis: {labels: {style:{fontSize:'10px'},formatter:(val)=>{return val >= 1000 ? formatNumber(val/1000)+'K' : formatNumber(val);}}},colors:["#2980b9","#7f8c8d"],stroke:{width:3},tooltip:{y:{formatter:val=>formatNumber(val)+' uds.'}}}}
+    ];
+
+    chartInitConfigs.forEach(c => {
+        const chartElement = document.querySelector(`#${c.id}`);
+        if (chartElement) {
+            charts[c.id] = new ApexCharts(chartElement, {
+                ...commonChartOptionsBase,
+                chart: {...commonChartOptionsBase.chart, type: c.type},
+                series: [], xaxis: {categories: []}, ...c.options
+            });
+            charts[c.id].render();
+        } else { console.error(`Elemento para gráfico ${c.id} no encontrado.`); }
+    });
+    charts.revenueByChannelChart = null; 
+
+    // Procesar los datos iniciales y actualizar el dashboard
+    const initialAggregatedData = processTransactions(allTransactions);
+    updateDashboard(initialAggregatedData); 
+    console.log("Dashboard actualizado con datos originales agregados.");
+    
+    // Event Listeners
+    document.getElementById('filterMonthStart').addEventListener('change', applyFilters);
+    document.getElementById('filterMonthEnd').addEventListener('change', applyFilters);
+    document.getElementById('filterBrand').addEventListener('change', applyFilters);
+    document.getElementById('filterProduct').addEventListener('change', applyFilters);
+    document.getElementById('filterCountry').addEventListener('change', applyFilters);
+    document.getElementById('filterChannel').addEventListener('change', applyFilters);
+    
+    document.getElementById('resetFilters').addEventListener('click', () => {
+        if (!allTransactions || allTransactions.length === 0) return;
+        
+        const uniqueMonths = [...new Set(allTransactions.map(t => t.monthYear))].sort((a, b) => new Date(a) - new Date(b));
+        if (uniqueMonths.length > 0) {
             document.getElementById('filterMonthStart').value = uniqueMonths[0];
-            document.getElementById('filterMonthEnd').value = uniqueMonths[uniqueMonths.length - 1]; 
+            document.getElementById('filterMonthEnd').value = uniqueMonths[uniqueMonths.length - 1];
         }
 
-        const uniqueBrands = [...new Set(transactions.map(t => t.brand))].sort();
-        populateSelect('filterBrand', uniqueBrands);
+        document.getElementById('filterBrand').value = "";
+        document.getElementById('filterProduct').value = "";
+        document.getElementById('filterCountry').value = "";
+        document.getElementById('filterChannel').value = "";
+        applyFilters(); // Esto recalculará y actualizará con todos los datos originales
+    });
 
-        const uniqueProducts = [...new Set(transactions.map(t => t.model))].sort();
-        populateSelect('filterProduct', uniqueProducts); 
-        
-        const uniqueCountries = [...new Set(transactions.map(t => t.country))].sort();
-        populateSelect('filterCountry', uniqueCountries);
+  })
+  .catch(err => {
+    console.error("Error fatal en el proceso de carga:", err);
+    document.querySelectorAll('.chart-summary').forEach(div => div.innerHTML = `<span class="no-data-summary">⚠️ Error: ${err.message}</span>`);
+    document.querySelectorAll('.kpi-card .h4').forEach(el => el.textContent = 'Error');
+    document.querySelectorAll('.filters-section select, .filters-section button').forEach(el => el.disabled = true);
+  });
 
-        const uniqueChannels = [...new Set(transactions.map(t => t.channel))].sort();
-        populateSelect('filterChannel', uniqueChannels);
-    }
 
-    function processTransactions(transactionsToProcess) {
-        const processed = {
-            kpis: { totalRevenue: 0, androidRevenue: 0, iosRevenue: 0 },
-            monthlyDataMap: {},
-            revenueByChannel: {},
-            revenueByCountry: {},
-           salesByBrandRevenue: {},
-            topProducts: {},
-            monthlyUnitsMap: {}
-        };
-
-        transactionsToProcess.forEach(transaction => {
-            const revenue = parseFloat(transaction.revenue) || 0;
-            const units = parseInt(transaction.units) || 0;
-
-            // KPIs
-            processed.kpis.totalRevenue += revenue;
-            if (transaction.os === 'Android') {
-                processed.kpis.androidRevenue += revenue;
-            } else if (transaction.os === 'iOS') {
-                processed.kpis.iosRevenue += revenue;
-            }
-
-            // Datos mensuales
-            const monthYear = transaction.monthYear;
-            if (!processed.monthlyDataMap[monthYear]) {
-                processed.monthlyDataMap[monthYear] = { revenue: 0, units: 0 };
-            }
-            processed.monthlyDataMap[monthYear].revenue += revenue;
-            processed.monthlyDataMap[monthYear].units += units;
-
-            // Ingresos por canal
-            if (!processed.revenueByChannel[transaction.channel]) {
-                processed.revenueByChannel[transaction.channel] = 0;
-            }
-            processed.revenueByChannel[transaction.channel] += revenue;
-
-            // Ingresos por país
-            if (!processed.revenueByCountry[transaction.country]) {
-                processed.revenueByCountry[transaction.country] = 0;
-            }
-            processed.revenueByCountry[transaction.country] += revenue;
-
-            // Ingresos por marca
-            if (!processed.salesByBrandRevenue[transaction.brand]) {
-                processed.salesByBrandRevenue[transaction.brand] = 0;
-            }
-            processed.salesByBrandRevenue[transaction.brand] += revenue;
-
-            // Top productos
-            if (!processed.topProducts[transaction.model]) {
-                processed.topProducts[transaction.model] = 0;
-            }
-            processed.topProducts[transaction.model] += revenue;
-
-            // Unidades mensuales
-            if (!processed.monthlyUnitsMap[monthYear]) {
-                processed.monthlyUnitsMap[monthYear] = 0;
-            }
-            processed.monthlyUnitsMap[monthYear] += units;
-        });
-
-        return processed;
-    }
-
-    function updateKPIs(processed) {
-        document.getElementById('totalRevenue').textContent = formatCurrency(processed.kpis.totalRevenue);
-        document.getElementById('androidRevenue').textContent = formatCurrency(processed.kpis.androidRevenue);
-        document.getElementById('iosRevenue').textContent = formatCurrency(processed.kpis.iosRevenue);
-    }
-
-    function updateCharts(processed) {
-        // Ingresos Mensuales
-        const monthlyLabels = Object.keys(processed.monthlyDataMap).sort((a, b) => new Date(a) - new Date(b));
-        const monthlyRevenues = monthlyLabels.map(month => processed.monthlyDataMap[month].revenue);
-        
-        if (charts.monthlyRevenue) {
-            charts.monthlyRevenue.updateSeries([{ data: monthlyRevenues }]);
-            charts.monthlyRevenue.updateOptions({ xaxis: { categories: monthlyLabels } });
-        } else {
-            charts.monthlyRevenue = new ApexCharts(document.querySelector("#monthlyRevenueChart"), {
-                ...commonChartOptionsBase,
-                series: [{ name: 'Ingresos', data: monthlyRevenues }],
-                chart: { ...commonChartOptionsBase.chart, type: 'line' },
-                xaxis: { categories: monthlyLabels },
-                stroke: { curve: 'smooth', width: 3 },
-                colors: ['#5b67ca']
-            });
-            charts.monthlyRevenue.render();
-        }
-
-        // Resumen mensual
-        const totalMonthlyRevenue = monthlyRevenues.reduce((sum, val) => sum + val, 0);
-        const avgMonthlyRevenue = monthlyRevenues.length > 0 ? totalMonthlyRevenue / monthlyRevenues.length : 0;
-        const bestMonth = monthlyLabels[monthlyRevenues.indexOf(Math.max(...monthlyRevenues))];
-        document.getElementById('monthlyRevenueSummary').innerHTML = 
-            `Promedio mensual: <span class="text-highlight-blue">${formatCurrency(avgMonthlyRevenue)}</span><br>
-             Mejor mes: <span class="text-highlight-green">${bestMonth || 'N/A'}</span>`;
-
-        // Ingresos por Canal
-        const channelLabels = Object.keys(processed.revenueByChannel);
-        const channelValues = channelLabels.map(channel => processed.revenueByChannel[channel]);
-        
-        if (charts.revenueByChannel) {
-            charts.revenueByChannel.updateSeries(channelValues);
-            charts.revenueByChannel.updateOptions({ labels: channelLabels });
-        } else {
-            charts.revenueByChannel = new ApexCharts(document.querySelector("#revenueByChannelChart"), {
-                ...commonChartOptionsBase,
-                series: channelValues,
-                chart: { ...commonChartOptionsBase.chart, type: 'donut' },
-                labels: channelLabels,
-                colors: ['#5b67ca', '#4a7ec1', '#28a745', '#fd7e14']
-            });
-            charts.revenueByChannel.render();
-        }
-
-        // Resumen por canal
-        const bestChannel = channelLabels[channelValues.indexOf(Math.max(...channelValues))];
-        const bestChannelRevenue = Math.max(...channelValues);
-        document.getElementById('revenueByChannelSummary').innerHTML = 
-            `Mejor canal: <span class="text-highlight-green">${bestChannel || 'N/A'}</span><br>
-             Ingresos: <span class="text-highlight-blue">${formatCurrency(bestChannelRevenue)}</span>`;
-
-        // Ingresos por País (Top 8)
-        const sortedCountries = Object.entries(processed.revenueByCountry)
-            .sort((a, b) => b[1] - a[1])
-            .slice(0, 8);
-        const countryLabels = sortedCountries.map(entry => entry[0]);
-        const countryValues = sortedCountries.map(entry => entry[1]);
-        
-        if (charts.revenueByCountry) {
-            charts.revenueByCountry.updateSeries([{ data: countryValues }]);
-            charts.revenueByCountry.updateOptions({ xaxis: { categories: countryLabels } });
-        } else {
-            charts.revenueByCountry = new ApexCharts(document.querySelector("#revenueByCountryChart"), {
-                ...commonChartOptionsBase,
-                series: [{ name: 'Ingresos', data: countryValues }],
-                chart: { ...commonChartOptionsBase.chart, type: 'bar' },
-                xaxis: { categories: countryLabels },
-                colors: ['#28a745']
-            });
-            charts.revenueByCountry.render();
-        }
-
-        // Resumen por país
-        const topCountry = countryLabels[0];
-        const topCountryRevenue = countryValues[0];
-        document.getElementById('revenueByCountrySummary').innerHTML = 
-            `País líder: <span class="text-highlight-green">${topCountry || 'N/A'}</span><br>
-             Ingresos: <span class="text-highlight-blue">${formatCurrency(topCountryRevenue)}</span>`;
-
-        // Ingresos por Marca
-        const brandLabels = Object.keys(processed.salesByBrandRevenue);
-        const brandValues = brandLabels.map(brand => processed.salesByBrandRevenue[brand]);
-        
-        if (charts.salesByBrandRevenue) {
-            charts.salesByBrandRevenue.updateSeries([{ data: brandValues }]);
-            charts.salesByBrandRevenue.updateOptions({ xaxis: { categories: brandLabels } });
-        } else {
-            charts.salesByBrandRevenue = new ApexCharts(document.querySelector("#salesByBrandRevenueChart"), {
-                ...commonChartOptionsBase,
-                series: [{ name: 'Ingresos', data: brandValues }],
-                chart: { ...commonChartOptionsBase.chart, type: 'bar' },
-                xaxis: { categories: brandLabels },
-                colors: ['#fd7e14']
-            });
-            charts.salesByBrandRevenue.render();
-        }
-
-        // Resumen por marca
-        const topBrand = brandLabels[brandValues.indexOf(Math.max(...brandValues))];
-        const topBrandRevenue = Math.max(...brandValues);
-        document.getElementById('salesByBrandRevenueSummary').innerHTML = 
-            `Marca líder: <span class="text-highlight-green">${topBrand || 'N/A'}</span><br>
-             Ingresos: <span class="text-highlight-blue">${formatCurrency(topBrandRevenue)}</span>`;
-
-        // Top 5 Productos
-        const sortedProducts = Object.entries(processed.topProducts)
-            .sort((a, b) => b[1] - a[1])
-            .slice(0, 5);
-        const productLabels = sortedProducts.map(entry => entry[0]);
-        const productValues = sortedProducts.map(entry => entry[1]);
-        
-        if (charts.topProducts) {
-            charts.topProducts.updateSeries([{ data: productValues }]);
-            charts.topProducts.updateOptions({ xaxis: { categories: productLabels } });
-        } else {
-            charts.topProducts = new ApexCharts(document.querySelector("#topProductsChart"), {
-                ...commonChartOptionsBase,
-                series: [{ name: 'Ingresos', data: productValues }],
-                chart: { ...commonChartOptionsBase.chart, type: 'bar' },
-                xaxis: { categories: productLabels },
-                colors: ['#dc3545']
-            });
-            charts.topProducts.render();
-        }
-
-        // Resumen productos
-        const topProduct = productLabels[0];
-        const topProductRevenue = productValues[0];
-        document.getElementById('topProductsSummary').innerHTML = 
-            `Producto estrella: <span class="text-highlight-green">${topProduct || 'N/A'}</span><br>
-             Ingresos: <span class="text-highlight-blue">${formatCurrency(topProductRevenue)}</span>`;
-
-        // Unidades Mensuales
-        const monthlyUnitsLabels = Object.keys(processed.monthlyUnitsMap).sort((a, b) => new Date(a) - new Date(b));
-        const monthlyUnitsValues = monthlyUnitsLabels.map(month => processed.monthlyUnitsMap[month]);
-        
-        if (charts.monthlyUnits) {
-            charts.monthlyUnits.updateSeries([{ data: monthlyUnitsValues }]);
-            charts.monthlyUnits.updateOptions({ xaxis: { categories: monthlyUnitsLabels } });
-        } else {
-            charts.monthlyUnits = new ApexCharts(document.querySelector("#monthlyUnitsChart"), {
-                ...commonChartOptionsBase,
-                series: [{ name: 'Unidades', data: monthlyUnitsValues }],
-                chart: { ...commonChartOptionsBase.chart, type: 'area' },
-                xaxis: { categories: monthlyUnitsLabels },
-                yaxis: { 
-                    labels: { 
-                        style: {fontSize: '10px'}, 
-                        formatter: (val) => formatNumber(val)
-                    }
-                },
-                fill: { opacity: 0.3 },
-                colors: ['#007bff']
-            });
-            charts.monthlyUnits.render();
-        }
-
-        // Resumen unidades
-        const totalUnits = monthlyUnitsValues.reduce((sum, val) => sum + val, 0);
-        const avgUnits = monthlyUnitsValues.length > 0 ? totalUnits / monthlyUnitsValues.length : 0;
-        document.getElementById('monthlyUnitsSummary').innerHTML = 
-            `Total unidades: <span class="text-highlight-blue">${formatNumber(totalUnits)}</span><br>
-             Promedio mensual: <span class="text-highlight-green">${formatNumber(avgUnits)}</span>`;
-    }
-
-    function getFilteredTransactions() {
-        const filterMonthStart = document.getElementById('filterMonthStart').value;
-        const filterMonthEnd = document.getElementById('filterMonthEnd').value;
-        const filterBrand = document.getElementById('filterBrand').value;
-        const filterProduct = document.getElementById('filterProduct').value;
-        const filterCountry = document.getElementById('filterCountry').value;
-        const filterChannel = document.getElementById('filterChannel').value;
-
-        return allTransactions.filter(transaction => {
-            // Filtro por rango de fechas
-            if (filterMonthStart && filterMonthEnd) {
-                const transactionDate = new Date(transaction.monthYear);
-                const startDate = new Date(filterMonthStart);
-                const endDate = new Date(filterMonthEnd);
-                if (transactionDate < startDate || transactionDate > endDate) {
-                    return false;
-                }
-            }
-
-            // Otros filtros
-            if (filterBrand && transaction.brand !== filterBrand) return false;
-            if (filterProduct && transaction.model !== filterProduct) return false;
-            if (filterCountry && transaction.country !== filterCountry) return false;
-            if (filterChannel && transaction.channel !== filterChannel) return false;
-
-            return true;
-        });
-    }
-
-    function updateDashboard() {
-        const filteredTransactions = getFilteredTransactions();
-        const processed = processTransactions(filteredTransactions);
-        updateKPIs(processed);
-        updateCharts(processed);
-    }
-
-    function setupEventListeners() {
-        const filterElements = [
-            'filterMonthStart', 'filterMonthEnd', 'filterBrand', 
-            'filterProduct', 'filterCountry', 'filterChannel'
-        ];
-        
-        filterElements.forEach(id => {
-            const element = document.getElementById(id);
-            if (element) {
-                element.addEventListener('change', updateDashboard);
-            }
-        });
-
-        // Botón de limpiar filtros
-        const resetButton = document.getElementById('resetFilters');
-        if (resetButton) {
-            resetButton.addEventListener('click', () => {
-                filterElements.forEach(id => {
-                    const element = document.getElementById(id);
-                    if (element) {
-                        if (id === 'filterMonthStart' || id === 'filterMonthEnd') {
-                            // Resetear a rango completo
-                            const uniqueMonths = [...new Set(allTransactions.map(t => t.monthYear))]
-                                .sort((a, b) => new Date(a) - new Date(b));
-                            if (uniqueMonths.length > 0) {
-                                if (id === 'filterMonthStart') {
-                                    element.value = uniqueMonths[0];
-                                } else {
-                                    element.value = uniqueMonths[uniqueMonths.length - 1];
-                                }
-                            }
-                        } else {
-                            element.value = '';
-                        }
-                    }
-                });
-                updateDashboard();
-            });
-        }
-    }
-
-    // Cargar datos y inicializar dashboard
-    fetch('sales_data.json')
-        .then(response => {
-            if (!response.ok) {
-                throw new Error(`HTTP error! status: ${response.status}`);
-            }
-            return response.json();
-        })
-        .then(data => {
-            console.log('Datos cargados:', data.length, 'transacciones');
-            allTransactions = data;
-            initializeFilters(allTransactions);
-            setupEventListeners();
-            updateDashboard();
-        })
-        .catch(error => {
-            console.error('Error al cargar los datos:', error);
-            document.querySelector('.dashboard-wrapper').innerHTML = 
-                '<div class="alert alert-danger">Error al cargar los datos. Asegúrate de que el archivo sales_data.json esté disponible.</div>';
-        });
-});
+---
