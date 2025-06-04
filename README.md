@@ -517,4 +517,32 @@ footer {
     }
 }
 
-----
+---
+
+Paso 2.3: Lógica Principal en JavaScript (script.js) 🧠
+Crea un archivo script.js en la misma carpeta. Este es el motor del dashboard. Pega el código JavaScript completo que te proporcioné en la respuesta anterior (la que comienza con document.addEventListener('DOMContentLoaded', () => { ...); es el código que ya incluye processTransactions, la lógica de filtros actualizada y updateDashboard.)
+Asegúrate de copiar todo el bloque <script>...</script> de esa respuesta y ponerlo en tu archivo script.js. (Para mantener este manual conciso, no repetiré ese bloque de JavaScript aquí, pero es el de la respuesta anterior marcada como "¡Excelente!").
+🚀 Parte 3: Ejecutar y Probar el Dashboard
+Asegúrate de tener los 3 archivos principales en la misma carpeta:
+index.html
+style.css
+script.js
+Y, lo más importante, sales_data.json (el que copiaste desde la carpeta output después de ejecutar generador_datos.js).
+Abre index.html en tu navegador web: Simplemente haz doble clic en el archivo index.html o arrástralo a una ventana de tu navegador (Chrome, Firefox, Edge, etc.).
+¡Explora!
+Deberías ver el dashboard cargado con los datos iniciales.
+Prueba los diferentes filtros (Mes Inicio/Fin, Marca, Producto, País, Canal).
+Observa cómo los KPIs, los gráficos y los resúmenes ejecutivos se actualizan dinámicamente.
+Usa el botón "Limpiar Filtros" para volver al estado original.
+Abre la consola de desarrollador de tu navegador (usualmente F12) para ver los mensajes de console.log si algo no funciona como esperas o si quieres ver el flujo de datos.
+🔮 Próximos Pasos y Mejoras (Opcional)
+¡Felicidades por llegar hasta aquí! Ahora tienes un dashboard funcional. Aquí hay algunas ideas para llevarlo al siguiente nivel:
+Mejorar el Diseño: Experimenta más con CSS, usa colores de marca, diferentes fuentes, etc.
+Más Tipos de Gráficos: ApexCharts ofrece muchos tipos de gráficos. Podrías añadir un gráfico de dispersión, un mapa de calor (si los datos lo permiten), etc.
+Filtros Dependientes: Hacer que el filtro de "Producto" se actualice para mostrar solo productos de la "Marca" seleccionada.
+Guardar Estado de Filtros: Usar localStorage para que los filtros seleccionados se recuerden si el usuario recarga la página.
+Optimización: Para conjuntos de datos muy grandes, el procesamiento en el lado del cliente podría volverse lento. Para producción con grandes volúmenes, se consideraría procesar/agregar datos en un backend.
+Exportar Gráficos/Datos: ApexCharts tiene opciones para exportar gráficos como imágenes. Podrías añadir botones para exportar los datos filtrados a CSV.
+Desplegarlo: Sube tu proyecto a GitHub Pages, Netlify, Vercel u otro servicio de hosting estático para compartirlo.
+¡Espero que este manual te sea de gran utilidad! Disfruta construyendo y personalizando tu dashboard de ventas. Si tienes alguna pregunta o te atascas, no dudes en consultar la documentación de las tecnologías utilizadas o buscar ayuda en comunidades online. ¡Feliz codificación! 👨‍💻👩‍💻
+
