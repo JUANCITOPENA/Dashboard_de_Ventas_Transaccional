@@ -883,3 +883,75 @@ fetch('sales_data.json')
 
 
 ---
+
+
+## 🚀 Funcionalidades Principales
+
+### 📊 **Procesamiento de Datos**
+- Carga y procesa transacciones desde `sales_data.json`
+- Calcula KPIs automáticamente (ingresos totales, Android, iOS)
+- Agrupa datos por mes, canal, país, marca y producto
+
+### 🎛️ **Sistema de Filtros**
+- Filtros por rango de fechas (mes inicio/fin)
+- Filtros por marca, producto, país y canal
+- Botón de reset para limpiar todos los filtros
+- Actualización en tiempo real de gráficos
+
+### 📈 **Visualizaciones Interactivas**
+- **Ingresos Mensuales**: Gráfico de línea con tendencias
+- **Ingresos por Canal**: Gráfico de dona
+- **Ingresos por País**: Gráfico de barras (top 8)
+- **Ingresos por Marca**: Gráfico de barras
+- **Top 5 Productos**: Ranking de productos estrella
+- **Unidades Mensuales**: Gráfico de área
+
+### 💼 **KPIs Dinámicos**
+- Ingresos totales en tiempo real
+- Ingresos Android vs iOS
+- Formateo automático de moneda (EUR)
+
+## 🛠️ **Para Completar el Proyecto**
+
+### 1. **Generar los datos**:
+```bash
+node generador_datos.js
+cp output/sales_data.json ./sales_data.json
+```
+
+### 2. **Abrir el dashboard**:
+- Abre `index.html` en tu navegador
+- ¡El dashboard estará completamente funcional!
+
+## ✨ **Características Avanzadas**
+- **Responsive Design**: Se adapta a móviles y tablets
+- **Resúmenes Inteligentes**: Cada gráfico incluye insights clave
+- **Manejo de Errores**: Gestión robusta de datos faltantes
+- **Performance Optimizado**: Actualización eficiente de gráficos
+
+## 🎯 **Conclusiones**
+
+Este dashboard de ventas interactivo demuestra cómo las tecnologías web modernas pueden crear herramientas de análisis poderosas y accesibles. El proyecto combina:
+
+- **Generación de Datos Realistas**: Node.js con librerías especializadas
+- **Visualización Moderna**: ApexCharts para gráficos interactivos
+- **Interfaz Responsiva**: Bootstrap para adaptabilidad total
+- **Experiencia de Usuario**: Filtros dinámicos y KPIs en tiempo real
+
+### 🏆 **Logros del Proyecto**
+- ✅ Dashboard completamente funcional
+- ✅ Más de 20,000 transacciones simuladas
+- ✅ 6 tipos de visualizaciones diferentes
+- ✅ Sistema de filtros avanzado
+- ✅ Diseño responsivo y moderno
+- ✅ Performance optimizado
+
+### 🔮 **Posibles Mejoras Futuras**
+- Conexión a base de datos real
+- Exportación de reportes (PDF, Excel)
+- Alertas y notificaciones automáticas
+- Dashboard en tiempo real con WebSockets
+- Análisis predictivo con machine learning
+- Autenticación y roles de usuario
+
+¡Tu dashboard de ventas interactivo está listo para usar! 🎉
