@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>📊 Dashboard Ventas Transaccional con Filtros</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
+  <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
+  <link rel="stylesheet" href="style.css">
+
+</head>
+<body>
+  <div class="dashboard-wrapper">
+    <div class="dashboard-header">
+      <div style="display:flex; align-items:center; justify-content:center; gap:10px;">
+        <h1 style="margin:0; display:flex; align-items:center; gap:0.5rem;">
+          <i class="fas fa-chart-pie"></i> Dashboard de Ventas Transaccional
+        </h1>
+        
+  <img
+    src="https://avatars.githubusercontent.com/u/38921558?v=4"
+    alt="Perfil"
+    class="footer-img"
+    data-bs-toggle="modal"
+    data-bs-target="#profileModal"
+    style="width: 50px; height: 50px; border-radius: 50%; cursor: pointer;"
+  />
+      </div>
+      <p>Visualización optimizada de datos clave (desde transacciones).</p>
+    </div>
+
+    <div class="kpi-row">
+      <div class="kpi-card">
+        <i class="fas fa-sack-dollar text-success"></i><div class="h5">Ingresos Totales</div><div class="h4" id="totalRevenue">$0</div>
+      </div>
+      <div class="kpi-card">
+        <i class="fab fa-android text-info"></i><div class="h5">Ingresos Android</div><div class="h4" id="androidRevenue">$0</div>
+      </div>
+      <div class="kpi-card">
+        <i class="fab fa-apple text-secondary"></i><div class="h5">Ingresos iOS</div><div class="h4" id="iosRevenue">$0</div>
+      </div>
+    </div>
+
+    <div class="filters-section">
+      <div class="filter-group"><label for="filterMonthStart">Mes Inicio:</label><select id="filterMonthStart" class="form-select"></select></div>
+      <div class="filter-group"><label for="filterMonthEnd">Mes Fin:</label><select id="filterMonthEnd" class="form-select"></select></div>
+      <div class="filter-group"><label for="filterBrand">Marca:</label><select id="filterBrand" class="form-select"><option value="">Todas</option></select></div>
+      <div class="filter-group"><label for="filterProduct">Producto:</label><select id="filterProduct" class="form-select"><option value="">Todos</option></select></div>
+      <div class="filter-group"><label for="filterCountry">País:</label><select id="filterCountry" class="form-select"><option value="">Todos</option></select></div>
+      <div class="filter-group"><label for="filterChannel">Canal:</label><select id="filterChannel" class="form-select"><option value="">Todos</option></select></div>
+      <div class="filter-group"><button id="resetFilters" class="btn btn-secondary w-100" style="margin-top: 1.5rem;"><i class="fas fa-undo"></i> Limpiar</button></div>
+    </div>
+
+    <div class="charts-grid">
+      <div class="chart-row">
+        <div class="chart-container"><h5><i class="fas fa-chart-line"></i> Ingresos Mensuales</h5><div id="monthlyRevenueChart"></div><div class="chart-summary" id="monthlyRevenueSummary">Cargando...</div></div>
+        <div class="chart-container"><h5><i class="fas fa-store"></i> Ingresos por Canal</h5><div id="revenueByChannelChart"></div><div class="chart-summary" id="revenueByChannelSummary">Cargando...</div></div>
+        <div class="chart-container"><h5><i class="fas fa-globe-americas"></i> Ingresos por País</h5><div id="revenueByCountryChart"></div><div class="chart-summary" id="revenueByCountrySummary">Cargando...</div></div>
+      </div>
+      <div class="chart-row">
+        <div class="chart-container"><h5><i class="fas fa-tag"></i> Ingresos por Marca</h5><div id="salesByBrandRevenueChart"></div><div class="chart-summary" id="salesByBrandRevenueSummary">Cargando...</div></div>
+        <div class="chart-container"><h5><i class="fas fa-medal"></i> Top 5 Productos</h5><div id="topProductsChart"></div><div class="chart-summary" id="topProductsSummary">Cargando...</div></div>
+        <div class="chart-container"><h5><i class="fas fa-boxes"></i> Unidades Mensuales</h5><div id="monthlyUnitsChart"></div><div class="chart-summary" id="monthlyUnitsSummary">Cargando...</div></div>
+      </div>
+    </div>
+
+
+    <!-- Footer -->
+<footer class="d-flex justify-content-center align-items-center gap-3 flex-wrap py-3 bg-light">
+  <span>© <span id="currentYear"></span> Dashboard Compacto</span>
+  <img
+    src="https://avatars.githubusercontent.com/u/38921558?v=4"
+    alt="Perfil"
+    class="footer-img"
+    data-bs-toggle="modal"
+    data-bs-target="#profileModal"
+    style="width: 50px; height: 50px; border-radius: 50%; cursor: pointer;"
+  />
+</footer>
+
+<!-- Modal -->
+<div class="modal fade" id="profileModal" tabindex="-1" aria-labelledby="profileModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered modal-lg">
+    <div class="modal-content border-0 rounded-4">
+      <div class="modal-header border-0">
+        <h5 class="modal-title" id="profileModalLabel">Sobre mí</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+      </div>
+      <div class="modal-body text-center">
+        <img src="https://avatars.githubusercontent.com/u/38921558?v=4"
+             alt="Perfil"
+             class="rounded-circle mb-3"
+             style="width: 120px; height: 120px;">
+          <p>Soy desarrollador apasionado por la tecnología, el desarrollo web y la automatización de datos.</p>
+        <p class="mb-4 fs-5">
+          🛠️ Ing. en Sistemas y Computación<br>
+          🧠 Prompt Engineer IA<br>
+          📊 Data Analyst (Excel, SQL, Power BI, Python)<br>
+          💻 Developer (HTML, CSS, JS, React, PHP, WordPress, Git)<br>
+          👨‍🏫 Docente y 👨‍👩‍👧‍👦 Padre.
+        </p>
+
+        <div class="d-flex justify-content-center gap-3 flex-wrap">
+          <a href="https://www.youtube.com/channel/UCSob-3E5z4IHtMF5B4bN-FA" target="_blank">
+            <img src="https://img.shields.io/badge/YouTube-FF0000?style=for-the-badge&logo=youtube&logoColor=white" alt="YouTube">
+          </a>
+          <a href="https://www.linkedin.com/in/juancitope%C3%B1a/" target="_blank">
+            <img src="https://img.shields.io/badge/LinkedIn-0077B5?style=for-the-badge&logo=linkedin&logoColor=white" alt="LinkedIn">
+          </a>
+          <a href="https://github.com/JUANCITOPENA" target="_blank">
+            <img src="https://img.shields.io/badge/GitHub-100000?style=for-the-badge&logo=github&logoColor=white" alt="GitHub">
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+ <!-- Bootstrap JS -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  <script>
+    // Set current year
+    document.getElementById("currentYear").textContent = new Date().getFullYear();
+  </script>
+
+<script src="script.js"></script>
+</body>
+</html>
