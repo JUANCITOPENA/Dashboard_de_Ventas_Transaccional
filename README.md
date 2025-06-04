@@ -882,7 +882,7 @@ fetch('sales_data.json')
   });
 
 
----
+```
 
 
 ## 🚀 Funcionalidades Principales
