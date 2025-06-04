@@ -317,12 +317,11 @@ Crea un archivo llamado `index.html` en la raíz de la carpeta de tu proyecto. P
   <script src="script.js"></script>
 </body>
 </html>
+----
 
 
-Paso 2.2: Estilos CSS (style.css)
-Crea un archivo llamado style.css en la raíz de la carpeta de tu proyecto (junto a index.html). Pega los siguientes estilos CSS:
-
-
+```css
+/* style.css */
 body { 
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
   background: #f0f2f5; 
@@ -342,6 +341,7 @@ body {
   border-radius: 8px; 
   text-align: center; 
   margin-bottom: 1rem; 
+  box-shadow: 0 4px 8px rgba(0,0,0,0.1);
 }
 .kpi-row { 
   display: flex; 
@@ -350,114 +350,140 @@ body {
   flex-wrap: wrap; 
 }
 .kpi-card { 
-  flex: 1; 
+  flex: 1 1 200px; /* Permite que crezcan pero con base de 200px */
   background: white; 
   border-radius: 8px; 
-  padding: 1rem; 
+  padding: 1.25rem 1rem; /* Más padding vertical */
   text-align: center; 
-  box-shadow: 0 0 8px rgba(0,0,0,0.1); 
-  min-width: 200px; 
+  box-shadow: 0 2px 4px rgba(0,0,0,0.08); 
+  transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+}
+.kpi-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 5px 10px rgba(0,0,0,0.12);
 }
 .kpi-card i { 
-  font-size: 2rem; 
-  margin-bottom: .5rem; 
+  font-size: 2.2rem; /* Iconos un poco más grandes */
+  margin-bottom: .75rem; 
+}
+.kpi-card .h5 {
+    font-size: 0.95rem;
+    color: #555;
+    margin-bottom: 0.25rem;
+}
+.kpi-card .h4 {
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: #333;
 }
 
 /* Estilos para la sección de Filtros */
 .filters-section {
   background: white;
-  padding: 1rem;
+  padding: 1.25rem; /* Más padding */
   border-radius: 8px;
-  box-shadow: 0 0 8px rgba(0,0,0,0.1);
-  margin-bottom: 1rem;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.08);
+  margin-bottom: 1.5rem; /* Más separación */
   display: flex;
   flex-wrap: wrap;
-  gap: 1rem;
-  align-items: flex-end; /* Alinea el botón con los selects */
+  gap: 1rem; /* Espacio entre grupos de filtros */
+  align-items: flex-end; 
 }
 .filter-group {
   display: flex;
   flex-direction: column;
-  gap: 0.25rem;
-  min-width: 180px; /* Ancho mínimo para cada grupo de filtro */
-  flex-grow: 1;
+  gap: 0.3rem; /* Espacio entre label y select */
+  min-width: 180px; 
+  flex: 1 1 180px; /* Permite que los filtros se distribuyan */
 }
 .filter-group label {
-  font-size: 0.85rem;
-  font-weight: 500;
-  color: #333;
+  font-size: 0.8rem;
+  font-weight: 600; /* Label más prominente */
+  color: #444;
+  margin-bottom: 0.1rem;
 }
-.filter-group select, .filter-group input { /* También para futuros inputs */
-  padding: 0.375rem 0.75rem;
+.filter-group select, .filter-group input {
+  padding: 0.45rem 0.85rem; /* Padding más cómodo */
   font-size: 0.9rem;
-  border-radius: 0.25rem;
+  border-radius: 0.3rem;
   border: 1px solid #ced4da;
-  box-sizing: border-box; /* Importante para que el padding no aumente el ancho */
+  box-sizing: border-box;
+}
+.filter-group select:focus, .filter-group input:focus {
+    border-color: #86b7fe;
+    outline: 0;
+    box-shadow: 0 0 0 0.2rem rgba(13,110,253,.25);
 }
 .filter-group button {
-    padding: 0.45rem 1rem; /* Ajuste para que sea similar en altura a los selects */
-    height: calc(0.375rem * 2 + 0.9rem + 2px + 0.5rem); /* Para igualar altura de selects con padding y border */
+    padding: 0.48rem 1rem; 
+    height: auto; /* Dejar que el contenido defina la altura */
+    font-weight: 500;
 }
 
 .charts-grid { 
   display: flex; 
   flex-direction: column; 
-  gap: 1rem; 
+  gap: 1.5rem; /* Más separación entre filas de gráficos */
 }
 .chart-row { 
   display: flex; 
-  gap: 1rem; 
+  gap: 1.5rem; /* Más separación entre gráficos en una fila */
   flex-wrap: wrap; 
 }
 .chart-container { 
   background: white; 
   border-radius: 8px; 
-  padding: 1rem;
-  flex: 1; 
-  box-shadow: 0 0 8px rgba(0,0,0,0.1); 
-  min-width: 300px; /* Asegura que los gráficos no se compriman demasiado */
+  padding: 1.25rem;
+  flex: 1 1 300px; /* Permite que crezcan con base de 300px */
+  box-shadow: 0 2px 4px rgba(0,0,0,0.08); 
+  min-width: 320px; 
   display: flex;
   flex-direction: column;
-  justify-content: space-between; /* Distribuye el espacio entre título, gráfico y resumen */
+  justify-content: space-between; 
 }
-/* El div donde ApexCharts renderiza el gráfico */
-.chart-container > div:first-of-type { 
-   min-height: 210px; /* Espacio para un gráfico de 170px de Apex + leyenda */
-   flex-grow: 1; /* Permite que el gráfico crezca si hay espacio */
+.chart-container h5 {
+    margin-bottom: 1rem; /* Espacio después del título del gráfico */
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: #333;
+}
+.chart-container > div:first-of-type { /* El div del gráfico ApexCharts */
+   min-height: 210px; 
+   flex-grow: 1; 
 }
 .chart-summary {
-  font-size: 0.82rem; 
+  font-size: 0.85rem; /* Un poco más grande */
   color: #555;
-  margin-top: 10px; /* Espacio entre gráfico/leyenda y resumen */
-  padding: 8px; 
-  background-color: #f9f9f9;
-  border-radius: 4px;
+  margin-top: 12px; 
+  padding: 10px; 
+  background-color: #f8f9fa; /* Color de fondo ligeramente diferente */
+  border-radius: 6px; /* Bordes más redondeados */
   text-align: center;
-  border: 1px solid #eee;
-  line-height: 1.5; 
-  min-height: 3.5em; /* Para evitar saltos de altura si el texto es corto */
+  border: 1px solid #e9ecef; /* Borde más sutil */
+  line-height: 1.6; 
+  min-height: 3.8em; 
   display: flex;
   align-items: center;
   justify-content: center;
 }
-.text-highlight-green { color: #28a745; font-weight: bold; }
-.text-highlight-blue { color: #007bff; font-weight: bold; }
-.text-highlight-orange { color: #fd7e14; font-weight: bold; }
-.text-highlight-red { color: #dc3545; font-weight: bold; }
-.no-data-summary { font-style: italic; color: #777; }
+.text-highlight-green { color: #198754; font-weight: bold; } /* Bootstrap success color */
+.text-highlight-blue { color: #0d6efd; font-weight: bold; } /* Bootstrap primary color */
+.text-highlight-orange { color: #fd7e14; font-weight: bold; } /* Bootstrap orange */
+.text-highlight-red { color: #dc3545; font-weight: bold; } /* Bootstrap danger color */
+.no-data-summary { font-style: italic; color: #6c757d; } /* Bootstrap secondary color */
 
 footer { 
   text-align: center; 
-  font-size: .85rem; 
-  color: #666; 
-  margin-top: 2rem; /* Más espacio antes del footer */
-  padding-bottom: 1rem; /* Espacio después del footer */
+  font-size: .9rem; 
+  color: #6c757d; 
+  margin-top: 2.5rem; 
+  padding-bottom: 1.5rem; 
 }
 
 /* Media Queries para Responsividad */
 @media (max-width: 1200px) { 
     .filter-group {
-        min-width: calc(33.333% - 1rem); /* Tres filtros por fila */
+        min-width: calc(33.333% - 1rem); 
     }
 }
 @media (max-width: 992px) {
@@ -465,425 +491,29 @@ footer {
     flex-direction: column;
   }
   .kpi-card, .chart-container {
-    min-width: 100%; /* Ocupan todo el ancho en pantallas pequeñas */
+    min-width: 100%; 
   }
   .chart-summary {
-    font-size: 0.78rem; 
+    font-size: 0.8rem; 
   }
    .filter-group {
-        min-width: calc(50% - 0.5rem); /* Dos filtros por fila */
+        min-width: calc(50% - 0.5rem); 
     }
 }
 @media (max-width: 576px) {
+    .dashboard-header h1 {
+        font-size: 1.5rem; /* Ajustar tamaño de título principal en móviles */
+    }
     .filter-group {
-        min-width: 100%; /* Un filtro por fila */
+        min-width: 100%; 
     }
     .filters-section {
         flex-direction: column;
-        align-items: stretch; /* Para que el botón ocupe todo el ancho */
+        align-items: stretch; 
     }
     .filter-group button {
-        margin-top: 0.5rem; /* Ajuste de margen para el botón en móvil */
+        margin-top: 0.5rem; 
     }
 }
-Paso 2.3: Lógica Principal en JavaScript (script.js) 🧠
-Este es el corazón del dashboard. Crea un archivo llamado script.js en la raíz de la carpeta de tu proyecto. Pega el siguiente código JavaScript. Este código está diseñado para trabajar con el sales_data.json transaccional que generaste.
 
-document.addEventListener('DOMContentLoaded', () => {
-    // --- Funciones de utilidad ---
-    document.getElementById('currentYear').textContent = new Date().getFullYear();
-    const formatCurrency = val => new Intl.NumberFormat("es-ES", { style: "currency", currency: "EUR", maximumFractionDigits: 0 }).format(val);
-    const formatNumber = val => new Intl.NumberFormat("es-ES", { maximumFractionDigits: 0 }).format(val);
-
-    let allTransactions = []; // Almacenará todas las transacciones originales
-    let charts = {}; // Para almacenar instancias de gráficos y actualizarlos
-
-    const commonChartOptionsBase = {
-        dataLabels: { enabled: false },
-        legend: { 
-            position: 'bottom', horizontalAlign: 'center', offsetY: 5, 
-            itemMargin: { horizontal: 5, vertical: 2 },
-            markers: { width: 10, height: 10 }, fontSize: '11px' 
-        },
-        chart: { 
-            height: 170, // Altura del GRÁFICO ApexCharts
-            toolbar: { show: true, tools: { download: true, selection: false, zoom: false, zoomin: false, zoomout: false, pan: false, reset: true } }
-        },
-        grid: { padding: { top: 5, right: 10, bottom: 0, left: 15 } },
-        yaxis: { 
-            labels: { 
-                style: {fontSize: '10px'}, 
-                formatter: (val) => { 
-                    if (val === undefined || val === null) return '';
-                    if (Math.abs(val) >= 1000000) return formatCurrency(val / 1000000) + 'M';
-                    if (Math.abs(val) >= 1000) return formatCurrency(val / 1000) + 'K';
-                    return formatCurrency(val);
-                }
-            }
-        },
-        xaxis: {
-            labels: {
-                style: { fontSize: '10px' },
-                rotate: -45,
-                trim: true,
-                hideOverlappingLabels: true
-            }
-        },
-        noData: {
-            text: 'Sin datos para mostrar.',
-            align: 'center', verticalAlign: 'middle',
-            style: { color: "#666666", fontSize: '14px' }
-        }
-    };
-
-    function populateSelect(selectId, optionsArray, hasAllOption = true, valueKey = null, textKey = null) {
-        const selectElement = document.getElementById(selectId);
-        if (!selectElement) { console.error(`Select con ID '${selectId}' no encontrado.`); return; }
-        selectElement.innerHTML = ''; 
-        if (hasAllOption) {
-            const allOption = document.createElement('option');
-            allOption.value = "";
-            let allText = "Todos";
-            if (selectId === "filterMonthStart" || selectId === "filterMonthEnd") allText = "N/A";
-            else if (selectId === "filterBrand") allText = "Todas las Marcas";
-            else if (selectId === "filterProduct") allText = "Todos los Productos";
-            else if (selectId === "filterCountry") allText = "Todos los Países";
-            else if (selectId === "filterChannel") allText = "Todos los Canales";
-            allOption.textContent = allText;
-            selectElement.appendChild(allOption);
-        }
-        optionsArray.forEach(optionData => {
-            const opt = document.createElement('option');
-            opt.value = valueKey ? optionData[valueKey] : (optionData.value !== undefined ? optionData.value : optionData);
-            opt.textContent = textKey ? optionData[textKey] : (optionData.text !== undefined ? optionData.text : optionData);
-            selectElement.appendChild(opt);
-        });
-    }
-
-    function initializeFilters(transactions) {
-        if (!transactions || transactions.length === 0) { 
-            console.warn("initializeFilters: No hay transacciones."); 
-            document.querySelectorAll('.filters-section select, .filters-section button').forEach(el => el.disabled = true);
-            return; 
-        }
-
-        const uniqueMonths = [...new Set(transactions.map(t => t.monthYear))]
-            .sort((a, b) => new Date(a) - new Date(b)); // Ordenar meses cronológicamente
-        populateSelect('filterMonthStart', uniqueMonths, false); 
-        populateSelect('filterMonthEnd', uniqueMonths, false);
-        if (uniqueMonths.length > 0) { 
-            document.getElementById('filterMonthStart').value = uniqueMonths[0];
-            document.getElementById('filterMonthEnd').value = uniqueMonths[uniqueMonths.length - 1]; 
-        }
-
-        const uniqueBrands = [...new Set(transactions.map(t => t.brand))].sort();
-        populateSelect('filterBrand', uniqueBrands);
-
-        const uniqueProducts = [...new Set(transactions.map(t => t.model))].sort();
-        populateSelect('filterProduct', uniqueProducts); 
-        
-        const uniqueCountries = [...new Set(transactions.map(t => t.country))].sort();
-        populateSelect('filterCountry', uniqueCountries);
-
-        const uniqueChannels = [...new Set(transactions.map(t => t.channel))].sort();
-        populateSelect('filterChannel', uniqueChannels);
-    }
-
-    function processTransactions(transactionsToProcess) {
-        const processed = {
-            kpis: { totalRevenue: 0, androidRevenue: 0, iosRevenue: 0 },
-            monthlyDataMap: {}, // Usar Map para mantener orden de inserción
-            revenueByChannel: {},
-            revenueByCountry: {},
-            salesByBrand: {},
-            productPerformance: {}
-        };
-
-        transactionsToProcess.forEach(t => {
-            // KPIs
-            processed.kpis.totalRevenue += t.revenue;
-            if (t.os === 'Android') processed.kpis.androidRevenue += t.revenue;
-            if (t.os === 'iOS') processed.kpis.iosRevenue += t.revenue;
-
-            // Monthly Data
-            if (!processed.monthlyDataMap[t.monthYear]) {
-                processed.monthlyDataMap[t.monthYear] = { month: t.monthYear, androidUnits: 0, iosUnits: 0, androidRevenue: 0, iosRevenue: 0 };
-            }
-            if (t.os === 'Android') {
-                processed.monthlyDataMap[t.monthYear].androidUnits += t.units;
-                processed.monthlyDataMap[t.monthYear].androidRevenue += t.revenue;
-            } else if (t.os === 'iOS') {
-                processed.monthlyDataMap[t.monthYear].iosUnits += t.units;
-                processed.monthlyDataMap[t.monthYear].iosRevenue += t.revenue;
-            }
-
-            processed.revenueByChannel[t.channel] = (processed.revenueByChannel[t.channel] || 0) + t.revenue;
-            processed.revenueByCountry[t.country] = (processed.revenueByCountry[t.country] || 0) + t.revenue;
-            
-            if (!processed.salesByBrand[t.brand]) processed.salesByBrand[t.brand] = { units: 0, revenue: 0 };
-            processed.salesByBrand[t.brand].units += t.units;
-            processed.salesByBrand[t.brand].revenue += t.revenue;
-
-            if (!processed.productPerformance[t.model]) processed.productPerformance[t.model] = { revenue: 0, units: 0, brand: t.brand };
-            processed.productPerformance[t.model].revenue += t.revenue;
-            processed.productPerformance[t.model].units += t.units;
-        });
-
-        processed.monthlyData = Object.values(processed.monthlyDataMap).sort((a,b) => new Date(a.month) - new Date(b.month));
-        
-        processed.top10Products = Object.entries(processed.productPerformance)
-            .map(([model, data]) => ({ model, ...data }))
-            .sort((a, b) => b.revenue - a.revenue)
-            .slice(0, 10);
-
-        return processed;
-    }
-
-    function applyFilters() {
-        if (!allTransactions || allTransactions.length === 0) {
-            updateDashboard(processTransactions([])); 
-            return;
-        }
-        console.log("Aplicando filtros...");
-
-        const selectedMonthStartStr = document.getElementById('filterMonthStart').value;
-        const selectedMonthEndStr = document.getElementById('filterMonthEnd').value;
-        const selectedBrand = document.getElementById('filterBrand').value;
-        const selectedProductModel = document.getElementById('filterProduct').value;
-        const selectedCountry = document.getElementById('filterCountry').value;
-        const selectedChannel = document.getElementById('filterChannel').value;
-
-        const dateMonthStart = selectedMonthStartStr ? new Date(selectedMonthStartStr) : null;
-        // Para el mes final, queremos incluir todo el mes, así que vamos al inicio del siguiente mes
-        let dateMonthEndLimit = null;
-        if (selectedMonthEndStr) {
-            const tempEndDate = new Date(selectedMonthEndStr);
-            dateMonthEndLimit = new Date(tempEndDate.getFullYear(), tempEndDate.getMonth() + 1, 1); 
-        }
-
-
-        let filteredTransactions = allTransactions.filter(t => {
-            const transactionDate = new Date(t.date); 
-            
-            if (dateMonthStart && transactionDate < dateMonthStart) return false;
-            if (dateMonthEndLimit && transactionDate >= dateMonthEndLimit) return false; // Usar >= con el inicio del *siguiente* mes
-            if (selectedBrand && t.brand !== selectedBrand) return false;
-            if (selectedProductModel && t.model !== selectedProductModel) return false;
-            if (selectedCountry && t.country !== selectedCountry) return false;
-            if (selectedChannel && t.channel !== selectedChannel) return false;
-            return true;
-        });
-        
-        const aggregatedData = processTransactions(filteredTransactions);
-        console.log("Datos agregados después de filtros:", aggregatedData);
-        updateDashboard(aggregatedData);
-    }
-
-    function updateDashboard(data) {
-        console.log("Actualizando dashboard con:", data.kpis.totalRevenue);
-        if (!data || !data.kpis) {
-            document.querySelectorAll('.chart-summary').forEach(div => div.innerHTML = `<span class="no-data-summary">Error interno.</span>`);
-            return;
-        }
-
-        document.getElementById("totalRevenue").textContent = formatCurrency(data.kpis.totalRevenue || 0);
-        document.getElementById("androidRevenue").textContent = formatCurrency(data.kpis.androidRevenue || 0);
-        document.getElementById("iosRevenue").textContent = formatCurrency(data.kpis.iosRevenue || 0);
-        
-        const monthlyChartData = data.monthlyData || [];
-        const monthlyCategories = monthlyChartData.map(m => m.month);
-
-        // --- Ingresos Mensuales ---
-        if (charts.monthlyRevenueChart) {
-            charts.monthlyRevenueChart.updateOptions({
-                series: [
-                    { name: "Android", data: monthlyChartData.map(m => m.androidRevenue || 0) },
-                    { name: "iOS", data: monthlyChartData.map(m => m.iosRevenue || 0) }
-                ],
-                xaxis: { categories: monthlyCategories.length ? monthlyCategories : [''] }
-            });
-        }
-        const totalPeriodRevenue = monthlyChartData.reduce((sum, m) => sum + (m.androidRevenue || 0) + (m.iosRevenue || 0), 0);
-        const androidTotalRevenue = monthlyChartData.reduce((sum, m) => sum + (m.androidRevenue || 0), 0);
-        const iosTotalRevenue = monthlyChartData.reduce((sum, m) => sum + (m.iosRevenue || 0), 0);
-        const dominantPlatformRevenue = androidTotalRevenue > iosTotalRevenue ? 'Android' : (iosTotalRevenue > 0 ? 'iOS' : 'N/A');
-        let peakMonthRevenueData = {month: 'N/A', androidRevenue:0, iosRevenue:0};
-        if (monthlyChartData.length) {
-            peakMonthRevenueData = monthlyChartData.reduce((peak, current) => (((current.androidRevenue||0) + (current.iosRevenue||0)) > ((peak.androidRevenue||0) + (peak.iosRevenue||0))) ? current : peak, monthlyChartData[0]);
-        }
-        document.getElementById('monthlyRevenueSummary').innerHTML = monthlyChartData.length ?
-            `💰 Total: ${formatCurrency(totalPeriodRevenue)}. <span class="text-highlight-green">Pico ${peakMonthRevenueData.month}: ${formatCurrency((peakMonthRevenueData.androidRevenue||0) + (peakMonthRevenueData.iosRevenue||0))}</span>. ${dominantPlatformRevenue === 'Android' ? '🤖' : (dominantPlatformRevenue === 'iOS' ? '🍏' : '')} <span class="text-highlight-blue">${dominantPlatformRevenue}</span> lidera.` :
-            `<span class="no-data-summary">Sin datos mensuales.</span>`;
-
-        // --- Ingresos por Canal ---
-        if (charts.revenueByChannelChart) { charts.revenueByChannelChart.destroy(); charts.revenueByChannelChart = null;}
-        const revenueByChannelData = data.revenueByChannel || {};
-        const channelLabels = Object.keys(revenueByChannelData);
-        const channelSeries = Object.values(revenueByChannelData);
-        charts.revenueByChannelChart = new ApexCharts(document.querySelector("#revenueByChannelChart"), {
-          ...commonChartOptionsBase, 
-          chart: { ...commonChartOptionsBase.chart, type: 'donut'}, 
-          plotOptions: { pie: { donut: { size: '60%' } } },
-          labels: channelLabels.length ? channelLabels : ['Sin Datos'], 
-          series: channelSeries.length ? channelSeries : [0], 
-          colors: ["#1abc9c", "#3498db", "#9b59b6", "#f39c12"], 
-          tooltip: { y: { formatter: val => formatCurrency(val) } },
-          yaxis: {} 
-        });
-        charts.revenueByChannelChart.render();
-        const channelsArray = Object.entries(revenueByChannelData);
-        let topChannel = ["N/A", 0];
-        if (channelsArray.length) topChannel = channelsArray.reduce((prev, current) => (current[1] > prev[1] ? current : prev));
-        document.getElementById('revenueByChannelSummary').innerHTML = channelsArray.length ?
-            `🛍️ ${channelsArray.length > 1 ? `${channelsArray.length} canales` : "Un canal"}. <span class="text-highlight-green">${topChannel[0]}</span> destaca (${formatCurrency(topChannel[1])}).` :
-            `<span class="no-data-summary">Sin datos de canal.</span>`;
-
-        // --- Ingresos por País ---
-        const revenueByCountryData = data.revenueByCountry || {};
-        const countryCategories = Object.keys(revenueByCountryData);
-        if (charts.revenueByCountryChart) {
-            charts.revenueByCountryChart.updateOptions({
-                series: [{ name: "Ingresos", data: Object.values(revenueByCountryData) }],
-                xaxis: { categories: countryCategories.length ? countryCategories : [''] }
-            });
-        }
-        const countriesArray = Object.entries(revenueByCountryData);
-        let topCountry = ["N/A", 0]; let avgCountryRevenue = 0;
-        if (countriesArray.length) {
-            topCountry = countriesArray.reduce((prev, current) => (current[1] > prev[1] ? current : prev));
-            avgCountryRevenue = countriesArray.reduce((sum, item) => sum + item[1], 0) / countriesArray.length;
-        }
-        document.getElementById('revenueByCountrySummary').innerHTML = countriesArray.length ?
-            `🌍 <span class="text-highlight-green">${topCountry[0]}</span> lidera (${formatCurrency(topCountry[1])}). ${countriesArray.length} países, promedio: ${formatCurrency(avgCountryRevenue)}.`:
-            `<span class="no-data-summary">Sin datos de país.</span>`;
-        
-        // --- Ingresos por Marca ---
-        const salesByBrandData = data.salesByBrand || {};
-        const salesByBrandProcessed = Object.entries(salesByBrandData).map(([brand, val]) => ({ name: brand, revenue: val.revenue || 0 }));
-        const brandCategories = salesByBrandProcessed.map(item => item.name);
-        if (charts.salesByBrandRevenueChart) {
-            charts.salesByBrandRevenueChart.updateOptions({
-                series: [{ name: "Ingresos", data: salesByBrandProcessed.map(item => item.revenue) }],
-                xaxis: { categories: brandCategories.length ? brandCategories : [''] }
-            });
-        }
-        let topBrand = {name: "N/A", revenue:0}; let avgBrandRevenue = 0;
-        if(salesByBrandProcessed.length){
-            topBrand = salesByBrandProcessed.reduce((prev, current) => (current.revenue > prev.revenue ? current : prev));
-            avgBrandRevenue = salesByBrandProcessed.reduce((sum, item) => sum + item.revenue, 0) / salesByBrandProcessed.length;
-        }
-        document.getElementById('salesByBrandRevenueSummary').innerHTML = salesByBrandProcessed.length ?
-            `🏷️ <span class="text-highlight-green">${topBrand.name}</span> top (${formatCurrency(topBrand.revenue)}). ${salesByBrandProcessed.length} marcas, promedio: ${formatCurrency(avgBrandRevenue)}.`:
-            `<span class="no-data-summary">Sin datos de marca.</span>`;
-
-        // --- Top 5 Productos ---
-        const topProductsData = data.top10Products || [];
-        const top5DisplayProducts = topProductsData.slice(0,5);
-        const productCategories = top5DisplayProducts.map(p => p.model);
-        if (charts.topProductsChart) {
-            charts.topProductsChart.updateOptions({
-                series: [{ name: "Ingresos", data: top5DisplayProducts.map(p => p.revenue || 0) }],
-                xaxis: { categories: productCategories.length ? productCategories : [''] }
-            });
-        }
-        const mainProduct = top5DisplayProducts.length ? top5DisplayProducts[0] : {model: "N/A", revenue:0};
-        const sumTop5Revenue = top5DisplayProducts.reduce((sum, p) => sum + (p.revenue || 0), 0);
-        document.getElementById('topProductsSummary').innerHTML = top5DisplayProducts.length ?
-             `🏆 Estrella: <span class="text-highlight-red">${mainProduct.model}</span> (${formatCurrency(mainProduct.revenue || 0)}). Top 5: ${formatCurrency(sumTop5Revenue)}.` :
-             `<span class="no-data-summary">Sin productos.</span>`;
-
-        // --- Unidades Mensuales ---
-        if (charts.monthlyUnitsChart) {
-             charts.monthlyUnitsChart.updateOptions({
-                series: [
-                    { name: "Android", data: monthlyChartData.map(m => m.androidUnits || 0) },
-                    { name: "iOS", data: monthlyChartData.map(m => m.iosUnits || 0) }
-                ],
-                xaxis: { categories: monthlyCategories.length ? monthlyCategories : [''] },
-                yaxis: { labels: { style: {fontSize: '10px'}, formatter: (val) => { return val >= 1000 ? formatNumber(val/1000)+'K' : formatNumber(val); }}}
-            });
-        }
-        const totalPeriodUnits = monthlyChartData.reduce((sum, m) => sum + (m.androidUnits || 0) + (m.iosUnits || 0), 0);
-        const androidTotalUnits = monthlyChartData.reduce((sum, m) => sum + (m.androidUnits || 0), 0);
-        const iosTotalUnits = monthlyChartData.reduce((sum, m) => sum + (m.iosUnits || 0), 0);
-        const dominantPlatformUnits = androidTotalUnits > iosTotalUnits ? 'Android' : (iosTotalUnits > 0 ? 'iOS' : 'N/A');
-        let peakMonthUnitsData = {month:'N/A', androidUnits:0, iosUnits:0};
-        if(monthlyChartData.length){
-            peakMonthUnitsData = monthlyChartData.reduce((peak, current) => {
-                const currentTotal = (current.androidUnits||0) + (current.iosUnits||0);
-                const peakTotal = (peak.androidUnits||0) + (peak.iosUnits||0);
-                return currentTotal > peakTotal ? current : peak;
-            }, monthlyChartData[0]);
-        }
-        document.getElementById('monthlyUnitsSummary').innerHTML = monthlyChartData.length ?
-            `📦 Total uds: ${formatNumber(totalPeriodUnits)}. <span class="text-highlight-orange">Pico ${peakMonthUnitsData.month}: ${formatNumber((peakMonthUnitsData.androidUnits||0) + (peakMonthUnitsData.iosUnits||0))} uds</span>. ${dominantPlatformUnits === 'Android' ? '🤖' : (dominantPlatformUnits === 'iOS' ? '🍏' : '')} <span class="text-highlight-blue">${dominantPlatformUnits}</span> lidera.` :
-            `<span class="no-data-summary">Sin datos mensuales.</span>`;
-    }
-
-    fetch('sales_data.json')
-      .then(res => {
-        console.log("Fetch - Respuesta:", res.status, res.statusText);
-        if (!res.ok) throw new Error(`Error HTTP ${res.status}`);
-        return res.json();
-      })
-      .then(transactions => {
-        console.log("Fetch - Transacciones cargadas:", transactions.length);
-        if (!Array.isArray(transactions)) throw new Error("JSON no es un array.");
-        
-        allTransactions = transactions; 
-        
-        initializeFilters(allTransactions);
-        
-        const chartInitConfigs = [
-            {id: 'monthlyRevenueChart', type: 'area', options: {colors: ["#00bcd4", "#666"], tooltip: { y: { formatter: val => formatCurrency(val) } }}},
-            {id: 'revenueByCountryChart', type: 'bar', options: {colors: ["#34495e"], tooltip: { y: { formatter: val => formatCurrency(val) } }}},
-            {id: 'salesByBrandRevenueChart', type: 'bar', options: {colors: ["#2ecc71"], tooltip: { y: { formatter: val => formatCurrency(val) } }}},
-            {id: 'topProductsChart', type: 'bar', options: {colors: ["#e74c3c"], tooltip: { y: { formatter: val => formatCurrency(val) } }}},
-            {id: 'monthlyUnitsChart', type: 'line', options: {yaxis: {labels: {style:{fontSize:'10px'},formatter:(val)=>{return val >= 1000 ? formatNumber(val/1000)+'K' : formatNumber(val);}}},colors:["#2980b9","#7f8c8d"],stroke:{width:3},tooltip:{y:{formatter:val=>formatNumber(val)+' uds.'}}}}
-        ];
-
-        chartInitConfigs.forEach(c => {
-            const chartElement = document.querySelector(`#${c.id}`);
-            if (chartElement) {
-                charts[c.id] = new ApexCharts(chartElement, {
-                    ...commonChartOptionsBase,
-                    chart: {...commonChartOptionsBase.chart, type: c.type},
-                    series: [], xaxis: {categories: []}, ...c.options
-                });
-                charts[c.id].render();
-            } else { console.error(`Elemento para gráfico ${c.id} no encontrado.`); }
-        });
-        charts.revenueByChannelChart = null; 
-
-        const initialAggregatedData = processTransactions(allTransactions);
-        updateDashboard(initialAggregatedData); 
-        
-        document.querySelectorAll('.filters-section select').forEach(sel => sel.addEventListener('change', applyFilters));
-        document.getElementById('resetFilters').addEventListener('click', () => {
-            if (!allTransactions || allTransactions.length === 0) return;
-            const uniqueMonths = [...new Set(allTransactions.map(t => t.monthYear))].sort((a, b) => new Date(a) - new Date(b));
-            if (uniqueMonths.length > 0) {
-                document.getElementById('filterMonthStart').value = uniqueMonths[0];
-                document.getElementById('filterMonthEnd').value = uniqueMonths[uniqueMonths.length - 1];
-            }
-            document.getElementById('filterBrand').value = "";
-            document.getElementById('filterProduct').value = "";
-            document.getElementById('filterCountry').value = "";
-            document.getElementById('filterChannel').value = "";
-            applyFilters(); 
-        });
-      })
-      .catch(err => {
-        console.error("Error fatal en carga o procesamiento:", err);
-        document.querySelectorAll('.chart-summary').forEach(div => div.innerHTML = `<span class="no-data-summary">⚠️ Error: ${err.message}</span>`);
-        document.querySelectorAll('.kpi-card .h4').forEach(el => el.textContent = 'Error');
-        document.querySelectorAll('.filters-section select, .filters-section button').forEach(el => el.disabled = true);
-      });
-}); // Fin DOMContentLoaded
-</script>
-</body>
-</html>
-
-
-
-
+----
