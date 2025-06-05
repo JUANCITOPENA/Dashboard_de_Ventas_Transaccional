@@ -4,6 +4,10 @@
 
 En esta ocasión, les traigo un **Dashboard de Ventas Interactivo** completamente funcional, acompañado de un **manual paso a paso** para que aprendamos juntos a construir aplicaciones web modernas utilizando las últimas tecnologías del mercado. 
 
+![Portada](Screenshot_501.png)
+
+![Portada](Screenshot_502.png)
+
 🚀 **¿Qué vas a aprender?** HTML5, CSS3, JavaScript ES6+, Node.js, ApexCharts, Bootstrap 5 y mucho más. Todas estas tecnologías las detallo más abajo con ejemplos prácticos y explicaciones claras.
 
 ---
